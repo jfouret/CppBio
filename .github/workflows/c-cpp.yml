@@ -1,4 +1,4 @@
-name: C/C++ CI
+name: C++ Build
 
 on:
   push:
@@ -10,6 +10,8 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    container:
+      image: jfouret/cppbuild
 
     steps:
     - uses: actions/checkout@v2
@@ -19,3 +21,5 @@ jobs:
       run: make doc
     - name: make test
       run: make test
+
+
