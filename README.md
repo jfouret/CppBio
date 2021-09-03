@@ -49,4 +49,4 @@ CppUnit is licensed under LGPL v2.1, and the full license text can be found on h
 
 # LICENSE
 
-This project is licensed under GNU V3 that can be found [here](./LICENCE)
+This project is licensed under GNU V3 that can be found [here](./LICENSE)
