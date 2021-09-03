@@ -1,4 +1,5 @@
 ![ci workflow](https://github.com/jfouret/cppbio/actions/workflows/c-cpp.yml/badge.svg)
+![ci workflow](https://github.com/jfouret/cppbio/actions/workflows/docker.yml/badge.svg)
 
 # CppBio
 
