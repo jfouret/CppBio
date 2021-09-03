@@ -3,6 +3,11 @@ name: C++ Build
 on:
   push:
     branches: [ master ]
+    paths-ignore:
+      - .github/workflows/*
+      - README.md
+      - LICENCE
+      - .gitignore
   pull_request:
     branches: [ master ]
 
