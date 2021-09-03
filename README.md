@@ -45,8 +45,40 @@ make clean
 
 # Credits
 
-CppUnit is licensed under LGPL v2.1, and the full license text can be found on https://www.gnu.org/licenses/lgpl-2.1.html.
+## Build
+- debian 
+ 
+https://www.debian.org 
 
-# LICENSE
+[**Licences**](https://www.debian.org/legal/licenses/)
+- docker 
 
-This project is licensed under GNU V3 that can be found [here](./LICENSE/GNU_V3.txt)
+https://www.docker.com 
+
+[**Docker Software End User License Agreement**](https://www.docker.com/legal/docker-software-end-user-license-agreement)
+- g++ 
+ 
+https://gcc.gnu.org/ 
+
+[**GNU General Public License v3.0**](https://www.gnu.org/licenses/gpl-3.0.html)
+- make 
+ 
+https://www.gnu.org/software/make/ 
+
+[**GNU General Public License v3.0**](https://www.gnu.org/licenses/gpl-3.0.html)
+
+## Test
+- CppUnit 
+
+https://sourceforge.net/p/cppunit/wiki/Home/
+
+[**GNU Lesser General Public License v2.1**](https://www.gnu.org/licenses/lgpl-2.1.html).
+- valgring 
+
+https://valgrind.org/ 
+
+[**GNU General Public License v2.0**](https://www.gnu.org/licenses/old-licenses/gpl-2.0.html)
+
+# License
+
+This project is licensed under [**GNU General Public License v3.0**](./LICENSE)
