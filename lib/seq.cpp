@@ -1,5 +1,5 @@
 /*
- * encode.cpp
+ * seq.cpp
  *
  *  Created on: Aug 31, 2021
  *      Author: jfouret
@@ -7,22 +7,23 @@
 
 #include <seq.hpp>
 
+using namespace cppbio;
 
-std::map<encode_type,char> encode_type2nbits {
+// Declaration and Definition of objects used only within this scope
+
+static std::map<encode_type,char> encode_type2nbits {
 	{NUC_2BITS,2},
 	{NUC_3BITS,3},
 	{NUC_4BITS,4},
 	{PRO_5BITS,5}
  };
 
-std::map<encode_type,mol_type> encode_type2mol_type {
+static std::map<encode_type,mol_type> encode_type2mol_type {
 	{NUC_2BITS,DNA},
 	{NUC_3BITS,DNA},
 	{NUC_4BITS,DNA},
 	{PRO_5BITS,PROTEIN}
  };
-
-// static function to handle errors, not visible outside
 
 static void unexpected_seq_char(char c){
 	switch (c){
@@ -36,6 +37,8 @@ static void unexpected_seq_char(char c){
 			break;
 	};
 };
+
+// Definition of objects declared in header
 
 seq::seq(){
 	this->e_type=enc_UNDEFINED;
@@ -219,10 +222,10 @@ void seq::encode(std::string s){
 			//std::cout << toupper(s[i]) << "\n";
 			//std::cout << (std::bitset<8>) data[i/4] << "\n";
 			switch(toupper(s[i])){
-			case 'A': this->data[i/4] |= b2_A; break; // b2_A is 00
-			case 'C': this->data[i/4] |= b2_C; break; // b2_C is 01
-			case 'G': this->data[i/4] |= b2_G; break; // b2_G is 10
-			case 'T': this->data[i/4] |= b2_T; break; // b2_t is 11
+			case 'A': this->data[i/4] |= 0b00; break; // b2_A is 00
+			case 'C': this->data[i/4] |= 0b01; break; // b2_C is 01
+			case 'G': this->data[i/4] |= 0b10; break; // b2_G is 10
+			case 'T': this->data[i/4] |= 0b11; break; // b2_t is 11
 			default:break;
 			};
 			break;
@@ -265,10 +268,10 @@ char seq::decode(ulong j){
 		nshift=6-2*(i%4);
 		byte=this->data[i/4]>>nshift;
 		switch(0b00000011 & byte){
-		case b2_A: r='A'; break;
-		case b2_C: r='C'; break;
-		case b2_G: r='G'; break;
-		case b2_T: r='T'; break;
+		case 0b00: r='A'; break;
+		case 0b01: r='C'; break;
+		case 0b10: r='G'; break;
+		case 0b11: r='T'; break;
 		default:break;
 		};
 		break;

@@ -19,7 +19,7 @@ LIBS_TEST_PATH=$(addprefix ${BUILD_DIR}/test/,$(LIBS_NAME))
 
 # Define multiple target-specific default variables
 comma := ,
-$(eval $(LIBS_TEST_PATH): LDLIBS=-lcppunit)
+$(eval $(LIBS_TEST_PATH): LDLIBS=-lboost_unit_test_framework)
 $(eval $(LIBS_TEST_PATH): LDFLAGS=-Wl$(comma)--no-as-needed)
 
 # Phony definition
@@ -59,6 +59,6 @@ ${LIBS_TEST_PATH} : BASE=$(subst ${BUILD_DIR}/test/,,$@)
 ${LIBS_TEST_PATH} : ${LIBS_STATIC_PATH} ${BUILD_DIR}/test
 	${CXX} ${CXXFLAGS} -I"./${SRC_LIB}" -I"./${SRC_TEST}" ${LDFLAGS} ${LDLIBS} -o $@ ${SRC_TEST}/test_${BASE}.cpp ${BUILD_DIR}/lib/${BASE}.a
 	chmod u+x $@
-	valgrind --tool=memcheck --leak-check=full --leak-resolution=high --show-reachable=yes $@
+	export export BOOST_TEST_LOG_LEVEL=all ; valgrind --tool=memcheck --leak-check=full --leak-resolution=high --show-reachable=yes $@
 
 	

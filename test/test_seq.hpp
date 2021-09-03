@@ -4,46 +4,21 @@
  *  Created on: Sep 1, 2021
  *      Author: jfouret
  */
-
 #ifndef TEST_SEQ_HPP_
 #define TEST_SEQ_HPP_
 
-#include <cppunit/TestCase.h>
-#include <cppunit/TestFixture.h>
-#include <cppunit/ui/text/TextTestRunner.h>
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/extensions/TestFactoryRegistry.h>
-#include <cppunit/TestResult.h>
-#include <cppunit/TestResultCollector.h>
-#include <cppunit/TestRunner.h>
-#include <cppunit/BriefTestProgressListener.h>
-#include <cppunit/CompilerOutputter.h>
-#include <cppunit/XmlOutputter.h>
-#include "seq.hpp"
+#include <seq.hpp>
+#define BOOST_TEST_MODULE "C++ Unit Tests for cppbio::seq"
+#include <boost/test/unit_test.hpp>
 
-using namespace CppUnit;
+using namespace cppbio;
 
-class TESTseq : public CppUnit::TestFixture
+struct TestFixture1
 {
-    CPPUNIT_TEST_SUITE(TESTseq);
-    CPPUNIT_TEST(get_string);
-    CPPUNIT_TEST(reverse);
-    CPPUNIT_TEST(complement);
-    CPPUNIT_TEST(reverse_complement);
-    CPPUNIT_TEST_SUITE_END();
+	TestFixture1();
+	// ~TestFixture1(); not needed
+	seq s1;
 
-public:
-    void setUp(void);
-    void tearDown(void);
-
-protected:
-    void get_string(void);
-    void reverse();
-    void complement();
-    void reverse_complement();
-
-private:
-    seq s1;
 };
 
 #endif /* TEST_SEQ_HPP_ */

@@ -4,86 +4,65 @@
  *  Created on: Sep 1, 2021
  *      Author: jfouret
  */
+#define BOOST_TEST_DYN_LINK
 
 #include <test_seq.hpp>
 
+using namespace cppbio;
+
 std::string i1			="AAAATTTCCG";
-std::string view_i1		="AAAATTTCCG";
 std::string rev_i1		="GCCTTTAAAA";
 std::string comp_i1		="TTTTAAAGGC";
 std::string revcomp_i1	="CGGAAATTTT";
 
-using namespace CppUnit;
+TestFixture1::TestFixture1(){
+    this->s1 = i1;
 
-void TESTseq::get_string(void)
-{
-    CPPUNIT_ASSERT(view_i1==s1.get_string());
 };
 
-void TESTseq::reverse(void)
+BOOST_FIXTURE_TEST_SUITE(Test_seq, TestFixture1);
+
+BOOST_AUTO_TEST_CASE( context )
 {
-	s1.reverse();
-	CPPUNIT_ASSERT(rev_i1==s1.get_string());
-	s1.reverse();
-    CPPUNIT_ASSERT(view_i1==s1.get_string());
+	BOOST_TEST_MESSAGE( "i1         = " << i1 );
+	BOOST_TEST_MESSAGE( "rev_i1     = " << rev_i1 );
+	BOOST_TEST_MESSAGE( "comp_i1    = " << comp_i1 );
+	BOOST_TEST_MESSAGE( "revcomp_i1 = " << revcomp_i1 );
 };
 
-void TESTseq::complement(void)
+BOOST_AUTO_TEST_CASE( get_string )
 {
-	s1.complement();
-	CPPUNIT_ASSERT(comp_i1==s1.get_string());
-	s1.complement();
-    CPPUNIT_ASSERT(view_i1==s1.get_string());
+	TestFixture1 f;
+	BOOST_CHECK(i1==f.s1.get_string());
 };
 
-void TESTseq::reverse_complement(void)
+BOOST_AUTO_TEST_CASE( reverse )
 {
-	s1.reverse_complement();
-	CPPUNIT_ASSERT(revcomp_i1==s1.get_string());
-	s1.reverse_complement();
-    CPPUNIT_ASSERT(view_i1==s1.get_string());
+	TestFixture1 f;
+	f.s1.reverse();
+	BOOST_CHECK(rev_i1==f.s1.get_string());
+	f.s1.reverse();
+	BOOST_CHECK(i1==f.s1.get_string());
 };
 
-void TESTseq::setUp(void)
+BOOST_AUTO_TEST_CASE( complement )
 {
-    s1 = i1;
+	TestFixture1 f;
+	f.s1.complement();
+	BOOST_CHECK(comp_i1==f.s1.get_string());
+	f.s1.complement();
+	BOOST_CHECK(i1==f.s1.get_string());
 };
 
-void TESTseq::tearDown(void){
+BOOST_AUTO_TEST_CASE( reverse_complement )
+{
+	TestFixture1 f;
+	f.s1.reverse_complement();
+	BOOST_CHECK(revcomp_i1==f.s1.get_string());
+	f.s1.reverse_complement();
+	BOOST_CHECK(i1==f.s1.get_string());
 };
 
-//-----------------------------------------------------------------------------
+BOOST_AUTO_TEST_SUITE_END();
 
-CPPUNIT_TEST_SUITE_REGISTRATION( TESTseq );
-
-int main(int argc, char* argv[])
-{
-    // informs test-listener about testresults
-    CPPUNIT_NS::TestResult testresult;
-
-    // register listener for collecting the test-results
-    CPPUNIT_NS::TestResultCollector collectedresults;
-    testresult.addListener (&collectedresults);
-
-    // register listener for per-test progress output
-    CPPUNIT_NS::BriefTestProgressListener progress;
-    testresult.addListener (&progress);
-
-    // insert test-suite at test-runner by registry
-    CPPUNIT_NS::TestRunner testrunner;
-    testrunner.addTest (CPPUNIT_NS::TestFactoryRegistry::getRegistry().makeTest ());
-    testrunner.run(testresult);
-
-    // output results in compiler-format
-    CPPUNIT_NS::CompilerOutputter compileroutputter(&collectedresults, std::cerr);
-    compileroutputter.write ();
-
-    // Output XML for Jenkins CPPunit plugin
-    // std::ofstream xmlFileOut("seq.xml");
-    // XmlOutputter xmlOut(&collectedresults, xmlFileOut);
-    // xmlOut.write();
-
-    // return 0 if tests were successful
-    return collectedresults.wasSuccessful() ? 0 : 1;
-}
 
