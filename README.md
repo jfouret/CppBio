@@ -29,9 +29,9 @@ firefoc doc/html/index.html
 
 You need cppunit with headers installed on your system to run the tests.
 
-On ubuntu run `sudo apt-get install libcppunit-dev`
-
 In addition to unit testing a memory leaks check is done with valgrind.
+
+On ubuntu run `sudo apt-get install libboost-test-dev valgrind`
 
 ```
 make test
@@ -46,34 +46,34 @@ make clean
 # Credits
 
 ## Build
-- debian 
+### debian 
  
 https://www.debian.org 
 
 [**Licences**](https://www.debian.org/legal/licenses/)
-- docker 
+### docker 
 
 https://www.docker.com 
 
 [**Docker Software End User License Agreement**](https://www.docker.com/legal/docker-software-end-user-license-agreement)
-- g++ 
+### g++ 
  
 https://gcc.gnu.org/ 
 
 [**GNU General Public License v3.0**](https://www.gnu.org/licenses/gpl-3.0.html)
-- make 
+### make 
  
 https://www.gnu.org/software/make/ 
 
 [**GNU General Public License v3.0**](https://www.gnu.org/licenses/gpl-3.0.html)
 
 ## Test
-- CppUnit 
+### Boost.Test library 
 
-https://sourceforge.net/p/cppunit/wiki/Home/
+https://www.boost.org/doc/libs/1_77_0/libs/test/doc/html/index.html
 
-[**GNU Lesser General Public License v2.1**](https://www.gnu.org/licenses/lgpl-2.1.html).
-- valgring 
+[**Boost Software License, Version 1.0**](https://www.boost.org/LICENSE_1_0.txt).
+### valgring 
 
 https://valgrind.org/ 
 
