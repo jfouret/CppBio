@@ -47,6 +47,6 @@ make clean
 
 CppUnit is licensed under LGPL v2.1, and the full license text can be found on https://www.gnu.org/licenses/lgpl-2.1.html.
 
-# LICENSE
+# License
 
-This project is licensed under GNU V3 that can be found [here](./LICENSE)
+This project is licensed under [**GNU General Public License v3.0**](./LICENSE)
