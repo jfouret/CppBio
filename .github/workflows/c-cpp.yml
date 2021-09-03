@@ -6,7 +6,7 @@ on:
     paths-ignore:
       - .github/workflows/*
       - README.md
-      - LICENCE/*
+      - LICENSE
       - .gitignore
   pull_request:
     branches: [ master ]
