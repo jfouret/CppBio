@@ -85,8 +85,8 @@ void seq::reverse_complement(){
 };
 
 void seq::operator = (std::string & s){
-	this->e_type=e_type;
-	this->m_type=m_type;
+	this->e_type=enc_UNDEFINED;
+	this->m_type=mol_UNDEFINED;
 	//std::cout << "initialize seq";
 	this->set_encode_parameters(s);
 	this->encode(s);

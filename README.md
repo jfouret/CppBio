@@ -1,4 +1,3 @@
-
 # CppBio
 
 ![ci workflow](https://github.com/jfouret/cppbio/actions/workflows/c-cpp.yml/badge.svg)
