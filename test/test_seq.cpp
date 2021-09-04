@@ -64,5 +64,3 @@ BOOST_AUTO_TEST_CASE( reverse_complement )
 };
 
 BOOST_AUTO_TEST_SUITE_END();
-
-
