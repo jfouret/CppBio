@@ -32,5 +32,5 @@ jobs:
         CODACY_PROJECT_TOKEN: 8a244c65f9eb43269bb02c8865aa3177
       run: |
         make coverage 
-        bash <(curl -Ls https://coverage.codacy.com/get.sh) report -r build/coverage.info
+        bash -c 'bash <(curl -Ls https://coverage.codacy.com/get.sh) report -r build/coverage.info'
 

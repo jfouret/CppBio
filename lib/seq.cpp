@@ -290,9 +290,3 @@ std::string seq::decode(){
 
 	return(r);
 };
-
-
-
-
-
-
