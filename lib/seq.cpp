@@ -54,8 +54,10 @@ seq::seq(){
 	this->m_type=mol_UNDEFINED;
 	this->n_data=0;
 	this->n_bytes=0;
+	this->nbits=0;
 	this->is_rev=false;
 	this->is_comp=false;
+	this->set_miscomplemented_encoding();
 	this->data.reset(new char[0]);
 	// note that decode is not defined
 };
@@ -86,7 +88,7 @@ void seq::complement(){
 		exit(1);
 	};
 	this->is_comp=!this->is_comp;
-
+	this->set_miscomplemented_encoding();
 };
 
 void seq::reverse_complement(){
@@ -97,10 +99,50 @@ void seq::reverse_complement(){
 void seq::operator = (std::string & s){
 	this->e_type=enc_UNDEFINED;
 	this->m_type=mol_UNDEFINED;
-	//std::cout << "initialize seq";
 	this->set_encode_parameters(s);
 	this->encode(s);
 };
+
+
+
+
+
+
+
+
+
+
+
+
+// START Data position iterator managing the reverse state
+
+uint32_t seq::get_begin_data_pos(){
+	if (this->is_rev){
+		return this->n_data-1;
+	}else{
+		return 0;
+	}
+};
+
+void seq::increment_begin_data_pos(uint32_t& i, uint32_t step){
+	if (this->is_rev){
+		i-=step;
+	}else{
+		i+=step;
+	}
+};
+
+bool seq::is_data_pos_valid(uint32_t& i){
+	if ( i>=0 && i<this->n_data ){
+		return true;
+	}else{
+		return false;
+	}
+};
+
+// END Data position iterator managing the reverse state
+
+
 
 void seq::set_encode_parameters(std::string s){
 	uint32_t length=0 ;
@@ -174,7 +216,22 @@ void seq::set_encode_parameters(std::string s){
 		break;
 	default: break;
 	};
+	this->set_miscomplemented_encoding();
 
+};
+
+void seq::set_miscomplemented_encoding(){
+	if (this->is_comp){
+		this->miscomplemented_encoding_ini_n='-';
+		this->miscomplemented_encoding_ini_gap='N';
+		this->miscomplemented_encoding_ini_s='W';
+		this->miscomplemented_encoding_ini_w='S';
+	}else{
+		this->miscomplemented_encoding_ini_n='N';
+		this->miscomplemented_encoding_ini_gap='-';
+		this->miscomplemented_encoding_ini_s='S';
+		this->miscomplemented_encoding_ini_w='W';
+	}
 };
 
 void seq::encode_NUC_2BITS(char& c, char& b){
@@ -221,15 +278,8 @@ void seq::encode(std::string s){
 		if (nshift){ this->data[this->n_bytes-1]=data[this->n_bytes-1] << nshift;};
 };
 
-char seq::decode_NUC_2BITS(uint32_t j){
+char seq::decode_NUC_2BITS(uint32_t& i){
 	char r;
-	uint32_t i;
-	// to do replace this by an iterator
-	if (this->is_rev){
-		i=this->n_data-j-1;
-	}else{
-		i=j;
-	};
 	char nshift=6 - 2 * (i%4);
 	char byte= this->data[i/4] >> nshift;
 	switch(byte & 0b00000011){
@@ -242,26 +292,8 @@ char seq::decode_NUC_2BITS(uint32_t j){
 	return(r);
 }
 
-char seq::decode_NUC_4BITS(uint32_t j){
+char seq::decode_NUC_4BITS(uint32_t& i){
 	char r;
-	char b_s = 'S';
-	char b_w = 'W';
-	char b_n = 'N';
-	char b_gap = '-';
-	uint32_t i;
-	// to do replace this by an iterator
-	if (this->is_rev){
-		i=this->n_data-j-1;
-	}else{
-		i=j;
-	};
-	// Do this before
-	if (this->is_comp){
-		b_s = 'W';
-		b_w = 'S';
-		b_n = '-';
-		b_gap = 'N';
-	}
 
 	char nshift=4 * (1 - i%2);
 	char byte=this->data[i/2]>>nshift;
@@ -273,10 +305,10 @@ char seq::decode_NUC_4BITS(uint32_t j){
 	case 0b0011: r='K'; break;
 	case 0b0100: r='B'; break;
 	case 0b0101: r='D'; break;
-	case 0b0110: r=b_s; break;
-	case 0b0111: r=b_n; break;
-	case 0b1000: r=b_gap; break;
-	case 0b1001: r=b_w; break;
+	case 0b0110: r=this->miscomplemented_encoding_ini_s; break;
+	case 0b0111: r=this->miscomplemented_encoding_ini_n; break;
+	case 0b1000: r=this->miscomplemented_encoding_ini_gap; break;
+	case 0b1001: r=this->miscomplemented_encoding_ini_w; break;
 	case 0b1010: r='H'; break;
 	case 0b1011: r='V'; break;
 	case 0b1100: r='M'; break;
@@ -290,7 +322,7 @@ char seq::decode_NUC_4BITS(uint32_t j){
 
 std::string seq::decode(){
 	std::string r = "";
-	for(uint32_t i=0; i < this->n_data ;i++){
+	for(uint32_t i=this->get_begin_data_pos(); this->is_data_pos_valid(i) ; this->increment_begin_data_pos(i) ){
 		r.push_back(this->decode_e_type(i));
 	};
 

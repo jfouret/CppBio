@@ -22,7 +22,8 @@ std::string revcomp_i2	="BCRKDWNTASYHVM-G";
 
 TestFixture1::TestFixture1(){
     this->s1 = i1;
-    this->s2 = i2;
+    this->s2.reset(new seq(i2));
+    //this->s2 = i2;
 };
 
 BOOST_FIXTURE_TEST_SUITE(Test_seq, TestFixture1);
@@ -45,7 +46,7 @@ BOOST_AUTO_TEST_CASE( get_string )
 {
 	TestFixture1 f;
 	BOOST_CHECK(i1==f.s1.get_string());
-	BOOST_CHECK(i2==f.s2.get_string());
+	BOOST_CHECK(i2==f.s2->get_string());
 };
 
 BOOST_AUTO_TEST_CASE( reverse )
@@ -55,10 +56,10 @@ BOOST_AUTO_TEST_CASE( reverse )
 	BOOST_CHECK(rev_i1==f.s1.get_string());
 	f.s1.reverse();
 	BOOST_CHECK(i1==f.s1.get_string());
-	f.s2.reverse();
-	BOOST_CHECK(rev_i2==f.s2.get_string());
-	f.s2.reverse();
-	BOOST_CHECK(i2==f.s2.get_string());
+	f.s2->reverse();
+	BOOST_CHECK(rev_i2==f.s2->get_string());
+	f.s2->reverse();
+	BOOST_CHECK(i2==f.s2->get_string());
 };
 
 BOOST_AUTO_TEST_CASE( complement )
@@ -68,10 +69,10 @@ BOOST_AUTO_TEST_CASE( complement )
 	BOOST_CHECK(comp_i1==f.s1.get_string());
 	f.s1.complement();
 	BOOST_CHECK(i1==f.s1.get_string());
-	f.s2.complement();
-	BOOST_CHECK(comp_i2==f.s2.get_string());
-	f.s2.complement();
-	BOOST_CHECK(i2==f.s2.get_string());
+	f.s2->complement();
+	BOOST_CHECK(comp_i2==f.s2->get_string());
+	f.s2->complement();
+	BOOST_CHECK(i2==f.s2->get_string());
 };
 
 BOOST_AUTO_TEST_CASE( reverse_complement )
@@ -81,10 +82,10 @@ BOOST_AUTO_TEST_CASE( reverse_complement )
 	BOOST_CHECK(revcomp_i1==f.s1.get_string());
 	f.s1.reverse_complement();
 	BOOST_CHECK(i1==f.s1.get_string());
-	f.s2.reverse_complement();
-	BOOST_CHECK(revcomp_i2==f.s2.get_string());
-	f.s2.reverse_complement();
-	BOOST_CHECK(i2==f.s2.get_string());
+	f.s2->reverse_complement();
+	BOOST_CHECK(revcomp_i2==f.s2->get_string());
+	f.s2->reverse_complement();
+	BOOST_CHECK(i2==f.s2->get_string());
 };
 
 BOOST_AUTO_TEST_SUITE_END();
