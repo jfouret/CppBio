@@ -161,7 +161,7 @@ namespace cppbio {
 			 *  @param e_type : Force a type of encoding
 			 *  @param m_type : Force a type of molecule
 			 */
-			seq(std::string s,encode_type e_type=enc_UNDEFINED,mol_type m_type=mol_UNDEFINED);
+			explicit seq(std::string s,encode_type in_e_type=enc_UNDEFINED,mol_type in_m_type=mol_UNDEFINED);
 			/*!
 			 *  @brief Operator = string
 			 *

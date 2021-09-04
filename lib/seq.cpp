@@ -49,9 +49,9 @@ seq::seq(){
 	this->data.reset(new char[0]);
 };
 
-seq::seq(std::string s,encode_type e_type,mol_type m_type){
-	this->e_type=e_type;
-	this->m_type=m_type;
+seq::seq(std::string s,encode_type in_e_type,mol_type in_m_type){
+	this->e_type=in_e_type;
+	this->m_type=in_m_type;
 	std::cout << "initialize seq";
 	this->set_encode_parameters(s);
 	this->encode(s);
