@@ -206,7 +206,6 @@ namespace cppbio {
 			encode_type e_type; /**<  encoding type */
 			mol_type m_type; /**<  molecule type */
 
-
 			char miscomplemented_encoding_ini_n; /**< Decoding character for the initial N encoding might be mis-complemented by the bitwise not */
 			char miscomplemented_encoding_ini_gap; /**< Decoding character for the initial gap encoding might be mis-complemented by the bitwise not */
 			char miscomplemented_encoding_ini_s; /**< Decoding character for the initial S encoding might be mis-complemented by the bitwise not */
@@ -215,7 +214,7 @@ namespace cppbio {
 			// START Data position iterator managing the reverse state
 
 			uint32_t get_begin_data_pos(); // not a reference given the function
-			void increment_begin_data_pos(uint32_t& i,uint32_t step=1);
+			void increment_begin_data_pos(uint32_t& i);
 			bool is_data_pos_valid(uint32_t& i);
 
 			// END Data position iterator managing the reverse state

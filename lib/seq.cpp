@@ -103,17 +103,6 @@ void seq::operator = (std::string & s){
 	this->encode(s);
 };
 
-
-
-
-
-
-
-
-
-
-
-
 // START Data position iterator managing the reverse state
 
 uint32_t seq::get_begin_data_pos(){
@@ -124,16 +113,16 @@ uint32_t seq::get_begin_data_pos(){
 	}
 };
 
-void seq::increment_begin_data_pos(uint32_t& i, uint32_t step){
+void seq::increment_begin_data_pos(uint32_t& i){
 	if (this->is_rev){
-		i-=step;
+		i--;
 	}else{
-		i+=step;
+		i++;
 	}
 };
 
 bool seq::is_data_pos_valid(uint32_t& i){
-	if ( i>=0 && i<this->n_data ){
+	if ( i<this->n_data ){ // equivalent also to a "human" i<0 since (0-1) will become the max value for an unsigned integer
 		return true;
 	}else{
 		return false;
@@ -141,8 +130,6 @@ bool seq::is_data_pos_valid(uint32_t& i){
 };
 
 // END Data position iterator managing the reverse state
-
-
 
 void seq::set_encode_parameters(std::string s){
 	uint32_t length=0 ;
