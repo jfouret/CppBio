@@ -15,6 +15,7 @@
 #include <memory>
 #include <map>
 #include <iterator>
+#include <functional>
 
 namespace cppbio {
 
@@ -47,14 +48,6 @@ namespace cppbio {
 		PROTEIN /**<  PROTEIN molecule */
 	} mol_type ;
 
-	/**
-	 * @brief Definition of type `ulong`
-	 *
-	 * alias for unsigned long
-	 *
-	 */
-
-	typedef unsigned long ulong;
 
 	/*!
 	 * @class seq
@@ -204,14 +197,17 @@ namespace cppbio {
 		private:
 			std::shared_ptr<char[]> data;  /**<  Smart pointer to the byte array of encoded data */
 			bool is_rev; /**<  whether the seq should be read in reverse or not */
-			ulong n_bytes; /**<  Number of bytes to encode the seq */
-			ulong n_data; /**<  Number of element (base or amino-acid) in the seq */
+			uint32_t n_bytes; /**<  Number of bytes to encode the seq */
+			uint32_t n_data; /**<  Number of element (base or amino-acid) in the seq */
 			encode_type e_type; /**<  encoding type */
 			mol_type m_type; /**<  molecule type */
 			void set_encode_parameters(std::string s);
 			void encode(std::string s);
-			char decode(ulong i);
+			void encode_NUC_2BITS(char& c,char& byte);
+			std::function<void (char&,char&)> encode_e_type;
+			char decode_NUC_2BITS(uint32_t i);
 			std::string decode();
+			std::function<char(uint32_t)> decode_e_type; // if named decode there is a char/string ambiguity some times.
 	};
 }
 #endif /* SEQ_HPP_ */

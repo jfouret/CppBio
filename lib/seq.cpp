@@ -7,6 +7,28 @@
 
 #include <seq.hpp>
 
+// MACRO to be used within seq::set_encode_parameters only
+
+#define PARSE_STR_ENCODING(XA,XB,XC,XD,XE,XF) {\
+switch(toupper(c)){\
+	case 'A':case 'T':case 'C':case 'G':\
+		XA break;\
+	case 'U':\
+		XB break;\
+	case 'N':case '-':\
+		XC break;\
+	case 'R':case 'K':case 'B':case 'S':case 'W':case 'H':case 'V':case 'M':case 'Y':\
+		XD break;\
+	case 'D':\
+		XE break;\
+	case 'E':case 'F':case 'I':case 'L':case 'P':case 'Q':case 'X':case 'Z':case '*':case '!':\
+		XF break;\
+	default:\
+		throw std::invalid_argument( "Unexpected char when parsing the biological sequence" );\
+}}
+
+// Make it so that the char is given where the error is thrown.
+
 using namespace cppbio;
 
 // Declaration and Definition of objects used only within this scope
@@ -25,19 +47,6 @@ static std::map<encode_type,mol_type> encode_type2mol_type {
 	{PRO_5BITS,PROTEIN}
  };
 
-static void unexpected_seq_char(char c){
-	switch (c){
-		case '\n': case '\0':
-			break;
-		case 'D':case 'Y':
-			std::cerr << "Unexpected char ('" << c << "') when encoding a biological sequence (D does not match any amino acid)"; exit(1);
-			break;
-		default:
-			std::cerr << "Unexpected char ('" << c << "') when encoding a biological sequence"; exit(1);
-			break;
-	};
-};
-
 // Definition of objects declared in header
 
 seq::seq(){
@@ -47,12 +56,13 @@ seq::seq(){
 	this->n_bytes=0;
 	this->is_rev=false;
 	this->data.reset(new char[0]);
+	// note that decode is not defined
 };
 
 seq::seq(std::string s,encode_type in_e_type,mol_type in_m_type){
 	this->e_type=in_e_type;
 	this->m_type=in_m_type;
-	std::cout << "initialize seq";
+	//std::cout << "initialize seq";
 	this->set_encode_parameters(s);
 	this->encode(s);
 	this->is_rev=false;
@@ -68,7 +78,7 @@ void seq::reverse(){
 
 void seq::complement(){
 	if (this->m_type!= PROTEIN){
-		for (ulong i=0;i<this->n_bytes;i++){
+		for (uint32_t i=0;i<this->n_bytes;i++){
 			//std::cerr << "complement" << std::endl;
 			this->data[i] = ~ this->data[i] ;
 		}
@@ -94,112 +104,53 @@ void seq::operator = (std::string & s){
 };
 
 void seq::set_encode_parameters(std::string s){
-	ulong length=0 ;
-
+	uint32_t length=0 ;
 	for (char const &c: s) {
-
 		switch(this->e_type){
 			case (enc_UNDEFINED):
-				switch(toupper(c)){
-					case 'A':case 'T':case 'C':case 'G':
-						this->e_type=NUC_2BITS;
-						this->m_type=DNA;
-						break;
-					case 'U':
-						this->e_type=NUC_2BITS;
-						this->m_type=RNA;
-					break;
-					case 'N':case '-':
-						this->e_type=NUC_3BITS;
-						this->m_type=DNA;
-						break;
-					case 'R':case 'K':case 'B':case 'D':case 'S':case 'W':case 'H':case 'V':case 'M':case 'Y':
-						this->e_type=NUC_4BITS;
-						this->m_type=DNA;
-						break;
-					case 'E':case 'F':case 'I':case 'L':case 'P':case 'Q':case 'X':case 'Z':
-						this->e_type=PRO_5BITS;
-						this->m_type=PROTEIN;
-						break;
-					default:
-						unexpected_seq_char(toupper(c));
-				};
+				PARSE_STR_ENCODING(
+						this->e_type=NUC_2BITS;this->m_type=DNA;,
+						this->e_type=NUC_2BITS;this->m_type=RNA;,
+						this->e_type=NUC_3BITS;this->m_type=DNA;,
+						this->e_type=NUC_4BITS;this->m_type=DNA;,
+						this->e_type=NUC_4BITS;this->m_type=DNA;,
+						this->e_type=PRO_5BITS;this->m_type=PROTEIN;);
 				break;
 			case (NUC_2BITS):
-				switch(toupper(c)){
-					case 'A':case 'T':case 'C':case 'G':
-						break;
-					case 'U':
-						if(this->m_type==DNA){this->m_type=RNA;};
-						break;
-					case 'N':case '-':
-						this->e_type=NUC_3BITS;
-						break;
-					case 'R':case 'K':case 'B':case 'D':case 'S':case 'W':case 'H':case 'V':case 'M':case 'Y':
-						this->e_type=NUC_4BITS;
-						break;
-					case 'E':case 'F':case 'I':case 'L':case 'P':case 'Q':case 'X':case 'Z':case '*':case '!':
-						this->e_type=PRO_5BITS;
-						this->m_type=PROTEIN;
-						break;
-					default:
-						unexpected_seq_char(toupper(c));
-				};
+				PARSE_STR_ENCODING(
+						,
+						if (this->m_type==DNA){this->m_type=RNA;};,
+						this->e_type=NUC_3BITS;,
+						this->e_type=NUC_4BITS;,
+						this->e_type=NUC_4BITS;,
+						this->e_type=PRO_5BITS;this->m_type=PROTEIN;);
 				break;
 			case (NUC_3BITS):
-				switch(toupper(c)){
-					case 'A':case 'T':case 'C':case 'G':
-						break;
-					case 'U':
-						if(this->m_type==DNA){this->m_type=RNA;};
-						break;
-					case 'N':case '-':
-						break;
-					case 'R':case 'K':case 'B':case 'D':case 'S':case 'W':case 'H':case 'V':case 'M':case 'Y':
-						this->e_type=NUC_4BITS;
-						break;
-					case 'E':case 'F':case 'I':case 'L':case 'P':case 'Q':case 'X':case 'Z':case '*':case '!':
-						this->e_type=PRO_5BITS;
-						this->m_type=PROTEIN;
-						break;
-					default:
-						unexpected_seq_char(toupper(c));
-				};
+				PARSE_STR_ENCODING(
+						,
+						if (this->m_type==DNA){this->m_type=RNA;};,
+						,
+						this->e_type=NUC_4BITS;,
+						this->e_type=NUC_4BITS;,
+						this->e_type=PRO_5BITS;this->m_type=PROTEIN;);
 				break;
 			case (NUC_4BITS):
-				switch(toupper(c)){
-					case 'A':case 'T':case 'C':case 'G':
-						break;
-					case 'U':
-						if(this->m_type==DNA){this->m_type=RNA;};
-						break;
-					case 'N':case '-':
-						break;
-					case 'R':case 'K':case 'B':case 'D':case 'S':case 'W':case 'H':case 'V':case 'M':case 'Y':
-						break;
-					case 'E':case 'F':case 'I':case 'L':case 'P':case 'Q':case 'X':case 'Z':case '*':case '!':
-						this->e_type=PRO_5BITS;
-						this->m_type=PROTEIN;
-						break;
-					default:
-						unexpected_seq_char(toupper(c));
-				};
+				PARSE_STR_ENCODING(
+						,
+						if (this->m_type==DNA){this->m_type=RNA;};,
+						,
+						,
+						,
+						this->e_type=PRO_5BITS;this->m_type=PROTEIN;);
 				break;
 			case (PRO_5BITS):
-				switch(toupper(c)){
-					case 'A':case 'T':case 'C':case 'G':
-						break;
-					case 'U':
-						break;
-					case 'N':case '-':
-						break;
-					case 'R':case 'K':case 'B':case 'S':case 'W':case 'H':case 'V':case 'M':case 'Y':
-						break;
-					case 'E':case 'F':case 'I':case 'L':case 'P':case 'Q':case 'X':case 'Z':case '*':case '!':
-						break;
-					default:
-						unexpected_seq_char(toupper(c));
-				};
+				PARSE_STR_ENCODING(
+						,
+						,
+						,
+						,
+						throw std::invalid_argument( "Unexpected char 'D' when parsing the protein sequence" );,
+						);
 				break;
 		};
 		length++;
@@ -212,67 +163,56 @@ void seq::set_encode_parameters(std::string s){
 	this->n_data = length;
 	if ((length*nbits) % CHAR_BIT){ this->n_bytes++; } ;
 	this->data.reset(new char[this->n_bytes]);
+
+	switch(this->e_type){
+	case NUC_2BITS:
+		this->decode_e_type = [=](uint32_t in_k){return this->decode_NUC_2BITS(in_k);};
+		this->encode_e_type = [=](char& in_c, char& in_b){this->encode_NUC_2BITS(in_c,in_b);};
+	break;
+	default: break;
+	};
+
 };
+
+void seq::encode_NUC_2BITS(char& c, char& b){
+	b = b << 2;
+	switch(toupper(c)){
+	case 'A': b |= 0b00; break; // b2_A is 00
+	case 'C': b |= 0b01; break; // b2_C is 01
+	case 'G': b |= 0b10; break; // b2_G is 10
+	case 'T': b |= 0b11; break; // b2_t is 11
+	default:break;
+	};
+}
 
 void seq::encode(std::string s){
-	for (ulong i=0;i<this->n_data;i++){
-		switch(this->e_type){
-		case NUC_2BITS:
-			this->data[i/4]=this->data[i/4] << 2;
-			//std::cout << toupper(s[i]) << "\n";
-			//std::cout << (std::bitset<8>) data[i/4] << "\n";
-			switch(toupper(s[i])){
-			case 'A': this->data[i/4] |= 0b00; break; // b2_A is 00
-			case 'C': this->data[i/4] |= 0b01; break; // b2_C is 01
-			case 'G': this->data[i/4] |= 0b10; break; // b2_G is 10
-			case 'T': this->data[i/4] |= 0b11; break; // b2_t is 11
-			default:break;
-			};
-			break;
-		//case NUC_3BITS:
-			//char b1;
-			//char b2=0;
-			// get byte id
-			//this->data[i/4]=this->data[i/4] << 2;
-			//break;
-		default:break;
-		};
+	for (uint32_t i=0;i<this->n_data;i++){
+		this->encode_NUC_2BITS(s[i],this->data[i/4]);
 	};
-
 	// shift the final bits if required
-	char nshift;
-	switch(this->e_type){
-		case NUC_2BITS:
-			nshift=(CHAR_BIT*this->n_bytes)-(2*this->n_data);
-			if (nshift){ this->data[this->n_bytes-1]=data[this->n_bytes-1] << nshift;};
-			break;
-		default:break;
-	};
+	char nshift=(CHAR_BIT*this->n_bytes)-(encode_type2nbits[this->e_type]*this->n_data);
+		if (nshift){ this->data[this->n_bytes-1]=data[this->n_bytes-1] << nshift;};
 };
 
-char seq::decode(ulong j){
+char seq::decode_NUC_2BITS(uint32_t j){
 	char r;
 	char byte;
 	char nshift;
-	ulong i;
+	uint32_t i;
+	// to do replace this by an iterator
 	if (this->is_rev){
 		i=this->n_data-j-1;
 	}else{
 		i=j;
 	};
 	//std::cerr << "DECODE i=" << i << "\n";
-	switch(this->e_type){
-	case NUC_2BITS:
-		nshift=6-2*(i%4);
-		byte=this->data[i/4]>>nshift;
-		switch(0b00000011 & byte){
-		case 0b00: r='A'; break;
-		case 0b01: r='C'; break;
-		case 0b10: r='G'; break;
-		case 0b11: r='T'; break;
-		default:break;
-		};
-		break;
+	nshift=6-2*(i%4);
+	byte=this->data[i/4]>>nshift;
+	switch(0b00000011 & byte){
+	case 0b00: r='A'; break;
+	case 0b01: r='C'; break;
+	case 0b10: r='G'; break;
+	case 0b11: r='T'; break;
 	default:break;
 	};
 	return(r);
@@ -280,11 +220,13 @@ char seq::decode(ulong j){
 
 std::string seq::decode(){
 	std::string r = "";
-
-	for(ulong i=0; i < this->n_data ;i++){
+	for(uint32_t i=0; i < this->n_data ;i++){
 		//std::cerr << "DECODE i=" << i << "\n";
-		r.push_back(this->decode(i));
+		r.push_back(this->decode_e_type(i));
 	};
 
 	return(r);
 };
+
+#undef PARSE_STR_ENCODING
+
