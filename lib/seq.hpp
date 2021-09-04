@@ -200,7 +200,7 @@ namespace cppbio {
 			std::shared_ptr<char[]> data;  /**<  Smart pointer to the byte array of encoded data */
 			bool is_rev; /**<  whether the seq should be read in reverse or not */
 			bool is_comp; /**<  whether the seq should be treated as complement or not */
-			int nbits; /**<  Number of bits to store an element */
+			uint8_t nbits; /**<  Number of bits to store an element */
 			uint32_t n_bytes; /**<  Number of bytes to encode the seq */
 			uint32_t n_data; /**<  Number of element (base or amino-acid) in the seq */
 			encode_type e_type; /**<  encoding type */
@@ -223,9 +223,11 @@ namespace cppbio {
 			void set_miscomplemented_encoding();
 			void encode(std::string& s);
 			void encode_NUC_2BITS(char& c,char& byte);
+			void encode_NUC_3BITS(char& c,char& byte,uint8_t& nbits_in_byte);
 			void encode_NUC_4BITS(char& c,char& byte);
-			std::function<void (char&,char&)> encode_e_type;
+			std::function<void (char&,char&,uint8_t&)> encode_e_type;
 			char decode_NUC_2BITS(uint32_t& i);
+			char decode_NUC_3BITS(uint32_t& i);
 			char decode_NUC_4BITS(uint32_t& i);
 			std::string decode();
 			std::function<char(uint32_t)> decode_e_type; // if named decode there is a char/string ambiguity some times.
