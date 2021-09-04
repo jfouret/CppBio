@@ -19,6 +19,7 @@ struct TestFixture1
 	// ~TestFixture1(); not needed
 	seq s1;
 	std::shared_ptr<seq> s2;
+	seq s3;
 };
 
 #endif /* TEST_SEQ_HPP_ */

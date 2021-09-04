@@ -195,11 +195,15 @@ void seq::set_encode_parameters(std::string& s){
 	switch(this->e_type){
 	case NUC_2BITS:
 		this->decode_e_type = [=](uint32_t in_k){return this->decode_NUC_2BITS(in_k);};
-		this->encode_e_type = [=](char& in_c, char& in_b,uint8_t& in_k){this->encode_NUC_2BITS(in_c,in_b);};
+		this->encode_e_type = [=](char& in_c, char& in_b,uint8_t& in_k,encoding_astrideness in_astride){this->encode_NUC_2BITS(in_c,in_b);};
+	break;
+	case NUC_3BITS:
+		this->decode_e_type = [=](uint32_t in_k){return this->decode_NUC_3BITS(in_k);};
+		this->encode_e_type = [=](char& in_c, char& in_b,uint8_t& in_k,encoding_astrideness in_astride){this->encode_NUC_3BITS(in_c,in_b,in_k,in_astride);};
 	break;
 	case NUC_4BITS:
 			this->decode_e_type = [=](uint32_t in_k){return this->decode_NUC_4BITS(in_k);};
-			this->encode_e_type = [=](char& in_c, char& in_b,uint8_t& in_k){this->encode_NUC_4BITS(in_c,in_b);};
+			this->encode_e_type = [=](char& in_c, char& in_b,uint8_t& in_k,encoding_astrideness in_astride){this->encode_NUC_4BITS(in_c,in_b);};
 		break;
 	default: break;
 	};
@@ -232,18 +236,48 @@ void seq::encode_NUC_2BITS(char& c, char& b){
 	};
 }
 
-void seq::encode_NUC_3BITS(char& c, char& b,uint8_t & nbits_in_byte){
-	b = b << std::min(nbits_in_byte,this->nbits);
-	switch(toupper(c)){
-	case 'A': b |= 0b000; break;
-	case 'C': b |= 0b001; break;
-	case 'N': b |= 0b010; break;
-	case '-': b |= 0b011; break;
-	//case '-': b |= 0b100; break;
-	//case 'N': b |= 0b101; break;
-	case 'G': b |= 0b110; break;
-	case 'T': b |= 0b111; break;
-	default:break;
+//unique_byte,
+//astride_first_byte,
+//astride_second_byte
+
+void seq::encode_NUC_3BITS(char& c, char& b,uint8_t & nbits_in_byte,encoding_astrideness astrideness){
+	uint8_t shift=std::min(nbits_in_byte,this->nbits);
+	b = b << shift;
+	shift=this->nbits-shift;
+	switch (astrideness){
+	case unique_byte:
+		switch(toupper(c)){
+		case 'A': b |= (0b000); break;
+		case 'C': b |= (0b001); break;
+		case 'N': b |= (0b010); break;
+		case '-': b |= (0b011); break;
+		case 'G': b |= (0b110); break;
+		case 'T': b |= (0b111); break;
+		default:break;
+		};
+		break;
+	case astride_first_byte:
+		switch(toupper(c)){
+		case 'A': b |= (0b000 >> shift); break;
+		case 'C': b |= (0b001 >> shift); break;
+		case 'N': b |= (0b010 >> shift); break;
+		case '-': b |= (0b011 >> shift); break;
+		case 'G': b |= (0b110 >> shift); break;
+		case 'T': b |= (0b111 >> shift); break;
+		default:break;
+		};
+		break;
+	case astride_second_byte:
+		switch(toupper(c)){
+		case 'A': b |= (0b000 << shift); break;
+		case 'C': b |= (0b001 << shift); break;
+		case 'N': b |= (0b010 << shift); break;
+		case '-': b |= (0b011 << shift); break;
+		case 'G': b |= (0b110 << shift); break;
+		case 'T': b |= (0b111 << shift); break;
+		default:break;
+		};
+		break;
 	};
 }
 
@@ -271,20 +305,28 @@ void seq::encode_NUC_4BITS(char& c, char& b){
 }
 
 void seq::encode(std::string& s){
-	uint8_t nbits_in_byte;
+	uint8_t nbits_in_bytes_after_first_bit;
+	uint8_t nbits_in_the_next_byte;
 	switch(this->e_type){
 	case NUC_2BITS: case NUC_4BITS:
 		for (uint32_t i=0;i<this->n_data;i++){
-			this->encode_e_type(s[i],this->data[(this->nbits * i) / CHAR_BIT],this->nbits);
+			this->encode_e_type(s[i],this->data[(this->nbits * i) / CHAR_BIT],this->nbits,unique_byte);
 		};
 		break;
 	case NUC_3BITS: case PRO_5BITS:
 		for (uint32_t i=0;i<this->n_data;i++){
-			nbits_in_byte=CHAR_BIT - this->nbits * ( i % CHAR_BIT );
-			this->encode_e_type(s[i],this->data[(this->nbits * i) / CHAR_BIT],nbits_in_byte);
-			if (nbits_in_byte<this->nbits){
-				nbits_in_byte=this->nbits-nbits_in_byte;
-				this->encode_e_type(s[i],this->data[1 + (this->nbits * i) / CHAR_BIT],nbits_in_byte);
+			nbits_in_bytes_after_first_bit=CHAR_BIT - i*this->nbits % CHAR_BIT;
+			std::cerr << "ENCODE i=" << i << std::endl;
+			std::cerr << "ENCODE first byte=" << (int) ((this->nbits * i) / CHAR_BIT) << std::endl;
+			std::cerr << "ENCODE nbits_in_bytes_after_first_bit=" << (int) nbits_in_bytes_after_first_bit << std::endl;
+
+			if (nbits_in_bytes_after_first_bit<this->nbits){
+				this->encode_e_type(s[i],this->data[(this->nbits * i) / CHAR_BIT],nbits_in_bytes_after_first_bit,astride_first_byte);
+				nbits_in_the_next_byte=this->nbits-nbits_in_bytes_after_first_bit;
+				std::cerr << "ENCODE nbits_in_the_next_byte=" << (int) nbits_in_the_next_byte << std::endl;
+				this->encode_e_type(s[i],this->data[1 + (this->nbits * i) / CHAR_BIT],nbits_in_the_next_byte,astride_second_byte);
+			}else{
+				this->encode_e_type(s[i],this->data[(this->nbits * i) / CHAR_BIT],nbits_in_bytes_after_first_bit,unique_byte);
 			}
 		};
 		break;
@@ -312,16 +354,25 @@ char seq::decode_NUC_2BITS(uint32_t& i){
 
 char seq::decode_NUC_3BITS(uint32_t& i){
 	char r;
-	uint8_t nbits_in_byte=CHAR_BIT - this->nbits * ( i % CHAR_BIT );
-	uint8_t nshift;
+	uint8_t nbits_in_bytes_after_first_bit=CHAR_BIT - i*this->nbits % CHAR_BIT; //
+	uint8_t nbits_in_the_next_byte=this->nbits-nbits_in_bytes_after_first_bit;
+	char mask;
 	char byte;
-	if (nbits_in_byte>=this->nbits){
-		nshift=nbits_in_byte-this->nbits;
-		byte= 0b00000111 & (this->data[(this->nbits * i) / CHAR_BIT] >> nshift);
-	} else{
-		nshift=CHAR_BIT-(this->nbits-nbits_in_byte);
-		byte= (this->data[(this->nbits * i) / CHAR_BIT]) | (this->data[1 + (this->nbits * i) / CHAR_BIT] >> nshift);
+	uint8_t shift;
+
+	if (nbits_in_bytes_after_first_bit<this->nbits){
+		mask=0b00000111 >> std::min(nbits_in_bytes_after_first_bit,this->nbits);
+		nbits_in_the_next_byte=this->nbits-nbits_in_bytes_after_first_bit;
+		byte= mask & (this->data[(this->nbits * i) / CHAR_BIT]);
+		byte=byte<<nbits_in_the_next_byte;
+		shift=CHAR_BIT-nbits_in_the_next_byte;
+		byte|= (this->data[1 + (this->nbits * i) / CHAR_BIT] >> shift) ;
+	}else{
+		mask=0b00000111;
+		shift=nbits_in_bytes_after_first_bit-this->nbits;
+		byte=0b00000111 & (this->data[(this->nbits * i) / CHAR_BIT]>>shift);
 	}
+
 	switch(byte){
 	case 0b000: r='A'; break;
 	case 0b001: r='C'; break;

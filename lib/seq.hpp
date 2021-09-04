@@ -19,6 +19,12 @@
 
 namespace cppbio {
 
+typedef enum {
+		unique_byte,
+		astride_first_byte,
+		astride_second_byte
+} encoding_astrideness;
+
 	/**
 	 * @brief Definition of type `encode_type`
 	 *
@@ -223,9 +229,9 @@ namespace cppbio {
 			void set_miscomplemented_encoding();
 			void encode(std::string& s);
 			void encode_NUC_2BITS(char& c,char& byte);
-			void encode_NUC_3BITS(char& c,char& byte,uint8_t& nbits_in_byte);
+			void encode_NUC_3BITS(char& c,char& byte,uint8_t& nbits_in_byte,encoding_astrideness astride);
 			void encode_NUC_4BITS(char& c,char& byte);
-			std::function<void (char&,char&,uint8_t&)> encode_e_type;
+			std::function<void (char&,char&,uint8_t&,encoding_astrideness astride)> encode_e_type;
 			char decode_NUC_2BITS(uint32_t& i);
 			char decode_NUC_3BITS(uint32_t& i);
 			char decode_NUC_4BITS(uint32_t& i);

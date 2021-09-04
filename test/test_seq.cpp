@@ -20,10 +20,15 @@ std::string rev_i2		="VGYMHWNATSRDBK-C";
 std::string comp_i2		="G-MVHYSATNWDKRCB";
 std::string revcomp_i2	="BCRKDWNTASYHVM-G";
 
+std::string i3			="AAAANTTT-CCG";
+std::string rev_i3		="GCC-TTTNAAAA";
+std::string comp_i3		="TTTTNAAA-GGC";
+std::string revcomp_i3	="CGG-AAANTTTT";
+
 TestFixture1::TestFixture1(){
     this->s1 = i1;
     this->s2.reset(new seq(i2));
-    //this->s2 = i2;
+    this->s3 = i3;
 };
 
 BOOST_FIXTURE_TEST_SUITE(Test_seq, TestFixture1);
@@ -40,6 +45,10 @@ BOOST_AUTO_TEST_CASE( context )
 	BOOST_TEST_MESSAGE( "comp_i2    = " << comp_i2 );
 	BOOST_TEST_MESSAGE( "revcomp_i2 = " << revcomp_i2 );
 
+	BOOST_TEST_MESSAGE( "i3         = " << i3 );
+	BOOST_TEST_MESSAGE( "rev_i3     = " << rev_i3 );
+	BOOST_TEST_MESSAGE( "comp_i3    = " << comp_i3 );
+	BOOST_TEST_MESSAGE( "revcomp_i3 = " << revcomp_i3 );
 };
 
 BOOST_AUTO_TEST_CASE( get_string )
@@ -47,6 +56,8 @@ BOOST_AUTO_TEST_CASE( get_string )
 	TestFixture1 f;
 	BOOST_CHECK(i1==f.s1.get_string());
 	BOOST_CHECK(i2==f.s2->get_string());
+	BOOST_TEST_MESSAGE( "f.s3.get_string() = " << f.s3.get_string() );
+	BOOST_CHECK(i3==f.s3.get_string());
 };
 
 BOOST_AUTO_TEST_CASE( reverse )
@@ -56,6 +67,7 @@ BOOST_AUTO_TEST_CASE( reverse )
 	BOOST_CHECK(rev_i1==f.s1.get_string());
 	f.s1.reverse();
 	BOOST_CHECK(i1==f.s1.get_string());
+
 	f.s2->reverse();
 	BOOST_CHECK(rev_i2==f.s2->get_string());
 	f.s2->reverse();
@@ -69,10 +81,13 @@ BOOST_AUTO_TEST_CASE( complement )
 	BOOST_CHECK(comp_i1==f.s1.get_string());
 	f.s1.complement();
 	BOOST_CHECK(i1==f.s1.get_string());
+
 	f.s2->complement();
 	BOOST_CHECK(comp_i2==f.s2->get_string());
 	f.s2->complement();
 	BOOST_CHECK(i2==f.s2->get_string());
+
+
 };
 
 BOOST_AUTO_TEST_CASE( reverse_complement )
