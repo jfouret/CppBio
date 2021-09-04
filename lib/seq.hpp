@@ -154,7 +154,7 @@ namespace cppbio {
 			 *  @param e_type : Force a type of encoding
 			 *  @param m_type : Force a type of molecule
 			 */
-			explicit seq(std::string s,encode_type in_e_type=enc_UNDEFINED,mol_type in_m_type=mol_UNDEFINED);
+			explicit seq(std::string & s,encode_type in_e_type=enc_UNDEFINED,mol_type in_m_type=mol_UNDEFINED);
 			/*!
 			 *  @brief Operator = string
 			 *
@@ -219,9 +219,9 @@ namespace cppbio {
 
 			// END Data position iterator managing the reverse state
 
-			void set_encode_parameters(std::string s);
+			void set_encode_parameters(std::string& s);
 			void set_miscomplemented_encoding();
-			void encode(std::string s);
+			void encode(std::string& s);
 			void encode_NUC_2BITS(char& c,char& byte);
 			void encode_NUC_4BITS(char& c,char& byte);
 			std::function<void (char&,char&)> encode_e_type;

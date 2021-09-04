@@ -62,7 +62,7 @@ seq::seq(){
 	// note that decode is not defined
 };
 
-seq::seq(std::string s,encode_type in_e_type,mol_type in_m_type){
+seq::seq(std::string & s,encode_type in_e_type,mol_type in_m_type){
 	this->e_type=in_e_type;
 	this->m_type=in_m_type;
 	//std::cout << "initialize seq";
@@ -131,7 +131,7 @@ bool seq::is_data_pos_valid(uint32_t& i){
 
 // END Data position iterator managing the reverse state
 
-void seq::set_encode_parameters(std::string s){
+void seq::set_encode_parameters(std::string& s){
 	uint32_t length=0 ;
 	for (char const &c: s) {
 		switch(this->e_type){
@@ -255,7 +255,7 @@ void seq::encode_NUC_4BITS(char& c, char& b){
 	};
 }
 
-void seq::encode(std::string s){
+void seq::encode(std::string& s){
 	for (uint32_t i=0;i<this->n_data;i++){
 
 		this->encode_e_type(s[i],this->data[(this->nbits * i) / CHAR_BIT]);
