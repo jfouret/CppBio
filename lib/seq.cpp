@@ -240,9 +240,7 @@ void seq::encode(std::string s){
 	};
 
 	// shift the final bits if required
-
 	char nshift;
-
 	switch(this->e_type){
 		case NUC_2BITS:
 			nshift=(CHAR_BIT*this->n_bytes)-(2*this->n_data);
