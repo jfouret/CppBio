@@ -18,7 +18,7 @@ struct TestFixture1
 	TestFixture1();
 	// ~TestFixture1(); not needed
 	seq s1;
-
+	seq s2;
 };
 
 #endif /* TEST_SEQ_HPP_ */
