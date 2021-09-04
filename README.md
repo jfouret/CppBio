@@ -3,6 +3,8 @@
 
 # CppBio
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/fff083521f014864b8bb37a30ba275a3)](https://app.codacy.com/gh/jfouret/CppBio?utm_source=github.com&utm_medium=referral&utm_content=jfouret/CppBio&utm_campaign=Badge_Grade_Settings)
+
 ## Motivation
 
 The purpose of building this set of libraries is pedagogic.
