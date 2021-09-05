@@ -203,6 +203,8 @@ typedef enum {
 			std::string get_string();
 		private:
 
+			// ATTRIBUTES
+
 			std::shared_ptr<std::byte[]> data;  /**<  Smart pointer to the byte array of encoded data */
 			bool is_rev; /**<  whether the seq should be read in reverse or not */
 			bool is_comp; /**<  whether the seq should be treated as complement or not */
@@ -211,32 +213,44 @@ typedef enum {
 			uint32_t n_data; /**<  Number of element (base or amino-acid) in the seq */
 			encode_type e_type; /**<  encoding type */
 			mol_type m_type; /**<  molecule type */
-
 			char miscomplemented_encoding_ini_n; /**< Decoding character for the initial N encoding might be mis-complemented by the bitwise not */
 			char miscomplemented_encoding_ini_gap; /**< Decoding character for the initial gap encoding might be mis-complemented by the bitwise not */
 			char miscomplemented_encoding_ini_s; /**< Decoding character for the initial S encoding might be mis-complemented by the bitwise not */
 			char miscomplemented_encoding_ini_w; /**< Decoding character for the initial W encoding might be mis-complemented by the bitwise not */
 
-			// START Data position iterator managing the reverse state
+			// INTERNAL FUNCTIONS
+
+			void set_encode_parameters(std::string& s);
+			void set_miscomplemented_encoding();
+
+			// DATA POSITION ITERATION FUNCTIONS
 
 			uint32_t get_begin_data_pos(); // not a reference given the function
 			void increment_begin_data_pos(uint32_t& i);
 			bool is_data_pos_valid(uint32_t& i);
 
-			// END Data position iterator managing the reverse state
+			// ENCODING FUNCTIONS
 
-			void set_encode_parameters(std::string& s);
-			void set_miscomplemented_encoding();
 			void encode(std::string& s);
 			void encode_NUC_2BITS(char& c,std::byte & byte);
 			void encode_NUC_3BITS(char& c, std::byte & byte, uint8_t &  nbits_in_byte, encoding_astrideness astride);
 			void encode_NUC_4BITS(char& c,std::byte & byte);
 			std::function<void (char &,std::byte &,uint8_t&,encoding_astrideness astride)> encode_e_type;
+
+			// GET BYTES FUNCTIONS
+
+			std::byte get_byte_NUC_2BITS(uint32_t& i);
+			std::byte get_byte_NUC_3BITS(uint32_t& i);
+			std::byte get_byte_NUC_4BITS(uint32_t& i);
+			std::function<std::byte (uint32_t&)> get_byte;
+
+			// DECODING FUNCTIONS
+
 			char decode_NUC_2BITS(uint32_t& i);
 			char decode_NUC_3BITS(uint32_t& i);
 			char decode_NUC_4BITS(uint32_t& i);
 			std::string decode();
-			std::function<char (uint32_t)> decode_e_type; // if named decode there is a char/string ambiguity some times.
+			std::function<char (uint32_t&)> decode_e_type; // if named decode there is a char/string ambiguity some times.
 	};
 }
 #endif /* SEQ_HPP_ */
