@@ -88,7 +88,7 @@ static std::map<encode_type,mol_type> encode_type2mol_type {
 // Definition of objects declared in header
 
 seq::seq(){
-	spdlog::debug("seq::seq");
+	SPDLOG_DEBUG("seq::seq");
 	this->e_type=enc_UNDEFINED;
 	this->m_type=mol_UNDEFINED;
 	this->n_data=0;
@@ -102,7 +102,7 @@ seq::seq(){
 };
 
 seq::seq(std::string & s,encode_type in_e_type,mol_type in_m_type){
-	spdlog::debug("seq::seq with string");
+	SPDLOG_DEBUG("seq::seq with string");
 	this->e_type=in_e_type;
 	this->m_type=in_m_type;
 	this->set_encode_parameters(s);
@@ -110,17 +110,17 @@ seq::seq(std::string & s,encode_type in_e_type,mol_type in_m_type){
 };
 
 std::string seq::get_string(){
-	spdlog::debug("seq::get_string");
+	SPDLOG_DEBUG("seq::get_string");
 	return(this->decode());
 };
 
 void seq::reverse(){
-	spdlog::debug("seq::reverse");
+	SPDLOG_DEBUG("seq::reverse");
 	this->is_rev=!this->is_rev;
 };
 
 void seq::complement(){
-	spdlog::debug("seq::complement");
+	SPDLOG_DEBUG("seq::complement");
 	if (this->m_type!= PROTEIN){
 		for (uint32_t i=0;i<this->n_bytes;i++){
 			this->data[i] = ~ this->data[i] ;
@@ -130,18 +130,18 @@ void seq::complement(){
 		exit(1);
 	};
 	this->is_comp=!this->is_comp;
-	spdlog::debug("seq::complement this->is_comp is now " + this->is_comp) ;
+	SPDLOG_DEBUG("seq::complement this->is_comp is now " + this->is_comp) ;
 	if (this->e_type==NUC_4BITS) this->set_miscomplemented_encoding();
 };
 
 void seq::reverse_complement(){
-	spdlog::debug("seq::reverse_complement");
+	SPDLOG_DEBUG("seq::reverse_complement");
 	this->reverse();
 	this->complement();
 };
 
 void seq::operator = (std::string & s){
-	spdlog::debug("seq::operator =");
+	SPDLOG_DEBUG("seq::operator =");
 	this->e_type=enc_UNDEFINED;
 	this->m_type=mol_UNDEFINED;
 	this->set_encode_parameters(s);
@@ -151,7 +151,7 @@ void seq::operator = (std::string & s){
 // START Data position iterator managing the reverse state
 
 uint32_t seq::get_begin_data_pos(){
-	spdlog::debug("seq::get_begin_data_pos");
+	SPDLOG_DEBUG("seq::get_begin_data_pos");
 	if (this->is_rev){
 		return this->n_data-1;
 	}else{
@@ -160,7 +160,7 @@ uint32_t seq::get_begin_data_pos(){
 };
 
 void seq::increment_begin_data_pos(uint32_t& i){
-	spdlog::debug("seq::increment_begin_data_pos");
+	SPDLOG_DEBUG("seq::increment_begin_data_pos");
 	if (this->is_rev){
 		i--;
 	}else{
@@ -169,7 +169,7 @@ void seq::increment_begin_data_pos(uint32_t& i){
 };
 
 bool seq::is_data_pos_valid(uint32_t& i){
-	spdlog::debug("seq::is_data_pos_valid");
+	SPDLOG_DEBUG("seq::is_data_pos_valid");
 	if ( i<this->n_data ){ // equivalent also to a "human" i<0 since (0-1) will become the max value for an unsigned integer
 		return true;
 	}else{
@@ -180,7 +180,7 @@ bool seq::is_data_pos_valid(uint32_t& i){
 // END Data position iterator managing the reverse state
 
 void seq::set_encode_parameters(std::string& s){
-	spdlog::debug("seq::set_encode_parameters");
+	SPDLOG_DEBUG("seq::set_encode_parameters");
 	uint32_t length=0 ;
 	for (char const &c: s) {
 		switch(this->e_type){
@@ -261,7 +261,7 @@ void seq::set_encode_parameters(std::string& s){
 };
 
 void seq::set_miscomplemented_encoding(){
-	spdlog::debug("seq::set_miscomplemented_encoding");
+	SPDLOG_DEBUG("seq::set_miscomplemented_encoding");
 	if (this->is_comp){
 		this->miscomplemented_encoding_ini_n='-';
 		this->miscomplemented_encoding_ini_gap='N';
@@ -276,7 +276,7 @@ void seq::set_miscomplemented_encoding(){
 };
 
 void seq::encode_NUC_2BITS(char& c, std::byte& b){
-	spdlog::debug("seq::encode_NUC_2BITS");
+	SPDLOG_DEBUG("seq::encode_NUC_2BITS");
 	b = b << 2;
 	switch(toupper(c)){
 	case 'A': b |= b00; break;
@@ -292,7 +292,7 @@ void seq::encode_NUC_2BITS(char& c, std::byte& b){
 //astride_second_byte
 
 void seq::encode_NUC_3BITS(char& c, std::byte & b,uint8_t & nbits_in_byte,encoding_astrideness astrideness){
-	spdlog::debug("seq::encode_NUC_3BITS");
+	SPDLOG_DEBUG("seq::encode_NUC_3BITS");
 	uint8_t shift=std::min(nbits_in_byte,this->nbits);
 	b = b << shift;
 	shift=this->nbits-shift;
@@ -335,7 +335,7 @@ void seq::encode_NUC_3BITS(char& c, std::byte & b,uint8_t & nbits_in_byte,encodi
 }
 
 void seq::encode_NUC_4BITS(char& c, std::byte& b){
-	spdlog::debug("seq::encode_NUC_4BITS");
+	SPDLOG_DEBUG("seq::encode_NUC_4BITS");
 	b = b << 4;
 	switch(toupper(c)){
 	case 'A': b |= b0000; break;
@@ -359,7 +359,7 @@ void seq::encode_NUC_4BITS(char& c, std::byte& b){
 }
 
 void seq::encode(std::string& s){
-	spdlog::debug("seq::encode");
+	SPDLOG_DEBUG("seq::encode");
 	uint8_t nbits_in_bytes_after_first_bit;
 	uint8_t nbits_in_the_next_byte;
 	switch(this->e_type){
@@ -393,7 +393,7 @@ void seq::encode(std::string& s){
 };
 
 char seq::decode_NUC_2BITS(uint32_t& i){
-	spdlog::debug("seq::decode_NUC_2BITS");
+	SPDLOG_DEBUG("seq::decode_NUC_2BITS");
 	char r;
 	char nshift=6 - 2 * (i%4);
 	std::byte byte= this->data[i/4] >> nshift;
@@ -408,43 +408,49 @@ char seq::decode_NUC_2BITS(uint32_t& i){
 }
 
 char seq::decode_NUC_3BITS(uint32_t& i){
-	spdlog::debug("seq::decode_NUC_3BITS");
+	SPDLOG_DEBUG("seq::decode_NUC_3BITS");
 	char r='_';
 	uint8_t nbits_in_bytes_after_first_bit=CHAR_BIT - (i)*this->nbits % CHAR_BIT; //
 	uint8_t nbits_in_the_next_byte;
-	//spdlog::debug("seq::decode_NUC_3BITS::nbits_in_bytes_after_first_bit={}",nbits_in_bytes_after_first_bit);
+	SPDLOG_DEBUG("seq::decode_NUC_3BITS::nbits_in_bytes_after_first_bit={}",nbits_in_bytes_after_first_bit);
 	std::byte mask;
 	std::byte byte;
 	//char byte_log;
 	uint8_t shift;
 
 	if (nbits_in_bytes_after_first_bit<this->nbits){
-		//spdlog::debug("seq::decode_NUC_3BITS::info is on 2 bytes");
+		SPDLOG_DEBUG("seq::decode_NUC_3BITS::info is on 2 bytes");
+
 		nbits_in_the_next_byte=this->nbits-nbits_in_bytes_after_first_bit;
 		mask=b00000111 >>nbits_in_the_next_byte;
-		//spdlog::debug("seq::decode_NUC_3BITS::nbits_in_the_next_byte={}",nbits_in_the_next_byte);
-		//spdlog::debug("seq::decode_NUC_3BITS::mask={}",std::bitset<8>{mask}.to_string());
-		//byte_log=this->data[(this->nbits * i) / CHAR_BIT];
-		//spdlog::debug("seq::decode_NUC_3BITS::1st  byte={}",std::bitset<8>{byte_log}.to_string());
-		//byte_log=this->data[1+(this->nbits * i) / CHAR_BIT];
-		//spdlog::debug("seq::decode_NUC_3BITS::2nd  byte={}",std::bitset<8>{byte_log}.to_string());
+
+		SPDLOG_DEBUG("seq::decode_NUC_3BITS::nbits_in_the_next_byte={}",nbits_in_the_next_byte);
+		SPDLOG_DEBUG("seq::decode_NUC_3BITS::mask={}",std::bitset<8>{(int)mask}.to_string());
+
+		SPDLOG_DEBUG("seq::decode_NUC_3BITS::1st  byte={}",std::bitset<8>{(int)(this->data[(this->nbits * i) / CHAR_BIT])}.to_string());
+
+		SPDLOG_DEBUG("seq::decode_NUC_3BITS::2nd  byte={}",std::bitset<8>{(int)(this->data[1+(this->nbits * i) / CHAR_BIT])}.to_string());
+
 		byte= mask & (this->data[(this->nbits * i) / CHAR_BIT]);
-		//spdlog::debug("seq::decode_NUC_3BITS::1st  byte masked={}",std::bitset<8>{byte}.to_string());
+
+		SPDLOG_DEBUG("seq::decode_NUC_3BITS::1st  byte masked={}",std::bitset<8>{(int)byte}.to_string());
+
 		byte=byte<<nbits_in_the_next_byte;
-		//spdlog::debug("seq::decode_NUC_3BITS::1st  byte masked shifted={}",std::bitset<8>{byte}.to_string());
+
+		SPDLOG_DEBUG("seq::decode_NUC_3BITS::1st  byte masked shifted={}",std::bitset<8>{(int)byte}.to_string());
 
 		shift=CHAR_BIT-nbits_in_the_next_byte;
-		//spdlog::debug("seq::decode_NUC_3BITS::2nd byte shift={}",shift);
-		//byte_log=(this->data[1 + (this->nbits * i) / CHAR_BIT] >> shift);
-		//spdlog::debug("seq::decode_NUC_3BITS::2nd  byte shifted={}",std::bitset<8>{byte_log}.to_string());
-		//byte_log=(this->data[1 + (this->nbits * i) / CHAR_BIT] >> shift) & mask;
-		//spdlog::debug("seq::decode_NUC_3BITS::2nd  byte shifted masked={}",std::bitset<8>{byte_log}.to_string());
+
+		SPDLOG_DEBUG("seq::decode_NUC_3BITS::2nd byte shift={}",shift);
+
+		SPDLOG_DEBUG("seq::decode_NUC_3BITS::2nd  byte shifted={}",std::bitset<8>{(int)((this->data[1 + (this->nbits * i) / CHAR_BIT] >> shift))}.to_string());
+
 		byte|= (this->data[1 + (this->nbits * i) / CHAR_BIT] >> shift) ;
-		//spdlog::debug("seq::decode_NUC_3BITS::final byte={}",std::bitset<8>{byte}.to_string());
+
+		SPDLOG_DEBUG("seq::decode_NUC_3BITS::final byte={}",std::bitset<8>{(int)byte}.to_string());
 	}else{
-		spdlog::debug("seq::decode_NUC_3BITS::info is on  byte");
-		//byte_log=this->data[(this->nbits * i) / CHAR_BIT];
-		//spdlog::debug("seq::decode_NUC_3BITS::byte={}",std::bitset<8>{byte_log}.to_string());
+		SPDLOG_DEBUG("seq::decode_NUC_3BITS::info is on  byte");
+		SPDLOG_DEBUG("seq::decode_NUC_3BITS::byte={}",std::bitset<8>{(int)(data[(this->nbits * i) / CHAR_BIT])}.to_string());
 		mask=b00000111;
 		shift=nbits_in_bytes_after_first_bit-this->nbits;
 		byte=b00000111 & (this->data[(this->nbits * i) / CHAR_BIT]>>shift);
@@ -463,7 +469,7 @@ char seq::decode_NUC_3BITS(uint32_t& i){
 }
 
 char seq::decode_NUC_4BITS(uint32_t& i){
-	spdlog::debug("seq::decode_NUC_4BITS");
+	SPDLOG_DEBUG("seq::decode_NUC_4BITS");
 	char r;
 
 	uint8_t nshift=4 * (1 - i%2);
@@ -492,16 +498,16 @@ char seq::decode_NUC_4BITS(uint32_t& i){
 }
 
 std::string seq::decode(){
-	spdlog::debug("seq::decode");
+	SPDLOG_DEBUG("seq::decode");
 	std::string r = "";
-	//spdlog::debug("seq::decode::start iteration");
+	SPDLOG_DEBUG("seq::decode::start iteration");
 	for(uint32_t i=this->get_begin_data_pos(); this->is_data_pos_valid(i) ; this->increment_begin_data_pos(i) ){
-		//spdlog::debug("seq::decode::i={}",i);
-		//spdlog::debug("seq::decode:: before push_back r= "+r);
+		SPDLOG_DEBUG("seq::decode::i={}",i);
+		SPDLOG_DEBUG("seq::decode:: before push_back r= "+r);
 		r.push_back(this->decode_e_type(i));
 	};
-	//spdlog::debug("seq::decode::iteration eneded");
-	//spdlog::debug("seq::decode::r= "+r);
+	SPDLOG_DEBUG("seq::decode::iteration eneded");
+	SPDLOG_DEBUG("seq::decode::r= "+r);
 	return(r);
 };
 
