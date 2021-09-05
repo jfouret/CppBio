@@ -8,6 +8,8 @@ BUILD_DIR=build
 CXX=g++
 CXXFLAGS=-O0 -g3 -Wall
 RM=rm -f
+LDLIBS=
+LDFLAGS=
 
 # Define the name of the libraries to be built
 LIBS_NAME=seq
@@ -54,7 +56,7 @@ ${BUILD_DIR}/src ${BUILD_DIR}/lib ${BUILD_DIR}/bin ${BUILD_DIR}/test ${BUILD_DIR
 ${LIBS_STATIC_PATH} : BASE=$(subst ${BUILD_DIR}/lib/,,$(subst .a,,$@))
 ${LIBS_STATIC_PATH} : ${BUILD_DIR}/lib 
 	echo " base is '${BASE}'"
-	${CXX} -I"./${SRC_LIB}" ${CXXFLAGS} -c -o ${BUILD_DIR}/lib/${BASE}.o  ${SRC_LIB}/${BASE}.cpp
+	${CXX} -I"./${SRC_LIB}" ${CXXFLAGS} -c ${LDFLAGS} ${LDLIBS} -o ${BUILD_DIR}/lib/${BASE}.o  ${SRC_LIB}/${BASE}.cpp
 	ar -q $@ build/lib/${BASE}.o 
 
 # Build and run tests

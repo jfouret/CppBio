@@ -26,6 +26,8 @@ std::string comp_i3		="TTTTNAAA-GGC";
 std::string revcomp_i3	="CGG-AAANTTTT";
 
 TestFixture1::TestFixture1(){
+	spdlog::set_level(spdlog::level::err); // Set global log level to debug
+	spdlog::set_pattern("[%H:%M:%S %z] [%L] %v");
     this->s1 = i1;
     this->s2.reset(new seq(i2));
     this->s3 = i3;
@@ -56,7 +58,6 @@ BOOST_AUTO_TEST_CASE( get_string )
 	TestFixture1 f;
 	BOOST_CHECK(i1==f.s1.get_string());
 	BOOST_CHECK(i2==f.s2->get_string());
-	BOOST_TEST_MESSAGE( "f.s3.get_string() = " << f.s3.get_string() );
 	BOOST_CHECK(i3==f.s3.get_string());
 };
 
@@ -72,6 +73,11 @@ BOOST_AUTO_TEST_CASE( reverse )
 	BOOST_CHECK(rev_i2==f.s2->get_string());
 	f.s2->reverse();
 	BOOST_CHECK(i2==f.s2->get_string());
+
+	f.s3.reverse();
+	BOOST_CHECK(rev_i3==f.s3.get_string());
+	f.s3.reverse();
+	BOOST_CHECK(i3==f.s3.get_string());
 };
 
 BOOST_AUTO_TEST_CASE( complement )
@@ -87,6 +93,10 @@ BOOST_AUTO_TEST_CASE( complement )
 	f.s2->complement();
 	BOOST_CHECK(i2==f.s2->get_string());
 
+	f.s3.complement();
+	BOOST_CHECK(comp_i3==f.s3.get_string());
+	f.s3.complement();
+	BOOST_CHECK(i3==f.s3.get_string());
 
 };
 
@@ -101,6 +111,12 @@ BOOST_AUTO_TEST_CASE( reverse_complement )
 	BOOST_CHECK(revcomp_i2==f.s2->get_string());
 	f.s2->reverse_complement();
 	BOOST_CHECK(i2==f.s2->get_string());
+
+	f.s3.reverse_complement();
+	BOOST_CHECK(revcomp_i3==f.s3.get_string());
+	f.s3.reverse_complement();
+	BOOST_CHECK(i3==f.s3.get_string());
+
 };
 
 BOOST_AUTO_TEST_SUITE_END();

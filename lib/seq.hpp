@@ -11,11 +11,11 @@
 #include <climits> // for CHAR_BIT
 #include <iostream>
 #include <string>
-#include <bitset>
 #include <memory>
 #include <map>
-#include <iterator>
 #include <functional>
+#include "spdlog/spdlog.h"
+#include <bitset>
 
 namespace cppbio {
 
