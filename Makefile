@@ -4,10 +4,15 @@ SRC_LIB=lib
 SRC_TEST=test
 BUILD_DIR=build
 
+# Prject specific variable
+SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_ERROR
+
 # Define default make variables
 CXX=g++
-CXXFLAGS=-O0 -g3 -Wall
+CXXFLAGS=-O0 -std=c++17 -g3 -Wall
 RM=rm -f
+LDLIBS=-lspdlog
+LDFLAGS=-DSPDLOG_ACTIVE_LEVEL=$(SPDLOG_ACTIVE_LEVEL) -DSPDLOG_COMPILED_LIB
 
 # Define the name of the libraries to be built
 LIBS_NAME=seq
@@ -19,9 +24,9 @@ LIBS_GCOV_PATH=$(addprefix ${BUILD_DIR}/coverage/,$(addsuffix .gcov,$(LIBS_NAME)
 
 # Define multiple target-specific default variables
 comma := ,
-$(eval $(LIBS_TEST_PATH): LDLIBS=-lboost_unit_test_framework)
-$(eval $(LIBS_TEST_PATH): LDFLAGS=-Wl$(comma)--no-as-needed)
-$(eval $(LIBS_TEST_PATH): CXXFLAGS=-O0 -g3 -Wall -fprofile-arcs -ftest-coverage)
+$(eval $(LIBS_TEST_PATH): LDLIBS=$(LDLIBS) -lboost_unit_test_framework)
+$(eval $(LIBS_TEST_PATH): LDFLAGS=$(LDFLAGS) -Wl$(comma)--no-as-needed)
+$(eval $(LIBS_TEST_PATH): CXXFLAGS=$(CXXFLAGS) -fprofile-arcs -ftest-coverage)
 
 # Phony definition
 
@@ -54,7 +59,7 @@ ${BUILD_DIR}/src ${BUILD_DIR}/lib ${BUILD_DIR}/bin ${BUILD_DIR}/test ${BUILD_DIR
 ${LIBS_STATIC_PATH} : BASE=$(subst ${BUILD_DIR}/lib/,,$(subst .a,,$@))
 ${LIBS_STATIC_PATH} : ${BUILD_DIR}/lib 
 	echo " base is '${BASE}'"
-	${CXX} -I"./${SRC_LIB}" ${CXXFLAGS} -c -o ${BUILD_DIR}/lib/${BASE}.o  ${SRC_LIB}/${BASE}.cpp
+	${CXX} -I"./${SRC_LIB}" ${CXXFLAGS} -c ${LDFLAGS} ${LDLIBS} -o ${BUILD_DIR}/lib/${BASE}.o  ${SRC_LIB}/${BASE}.cpp
 	ar -q $@ build/lib/${BASE}.o 
 
 # Build and run tests

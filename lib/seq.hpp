@@ -11,13 +11,20 @@
 #include <climits> // for CHAR_BIT
 #include <iostream>
 #include <string>
-#include <bitset>
 #include <memory>
 #include <map>
-#include <iterator>
 #include <functional>
+#include "spdlog/spdlog.h"
+#include <bitset>
+#include <cstddef>
 
 namespace cppbio {
+
+typedef enum {
+		unique_byte,
+		astride_first_byte,
+		astride_second_byte
+} encoding_astrideness;
 
 	/**
 	 * @brief Definition of type `encode_type`
@@ -196,11 +203,10 @@ namespace cppbio {
 			std::string get_string();
 		private:
 
-
-			std::shared_ptr<char[]> data;  /**<  Smart pointer to the byte array of encoded data */
+			std::shared_ptr<std::byte[]> data;  /**<  Smart pointer to the byte array of encoded data */
 			bool is_rev; /**<  whether the seq should be read in reverse or not */
 			bool is_comp; /**<  whether the seq should be treated as complement or not */
-			int nbits; /**<  Number of bits to store an element */
+			uint8_t nbits; /**<  Number of bits to store an element */
 			uint32_t n_bytes; /**<  Number of bytes to encode the seq */
 			uint32_t n_data; /**<  Number of element (base or amino-acid) in the seq */
 			encode_type e_type; /**<  encoding type */
@@ -222,13 +228,15 @@ namespace cppbio {
 			void set_encode_parameters(std::string& s);
 			void set_miscomplemented_encoding();
 			void encode(std::string& s);
-			void encode_NUC_2BITS(char& c,char& byte);
-			void encode_NUC_4BITS(char& c,char& byte);
-			std::function<void (char&,char&)> encode_e_type;
+			void encode_NUC_2BITS(char& c,std::byte & byte);
+			void encode_NUC_3BITS(char& c, std::byte & byte, uint8_t &  nbits_in_byte, encoding_astrideness astride);
+			void encode_NUC_4BITS(char& c,std::byte & byte);
+			std::function<void (char &,std::byte &,uint8_t&,encoding_astrideness astride)> encode_e_type;
 			char decode_NUC_2BITS(uint32_t& i);
+			char decode_NUC_3BITS(uint32_t& i);
 			char decode_NUC_4BITS(uint32_t& i);
 			std::string decode();
-			std::function<char(uint32_t)> decode_e_type; // if named decode there is a char/string ambiguity some times.
+			std::function<char (uint32_t)> decode_e_type; // if named decode there is a char/string ambiguity some times.
 	};
 }
 #endif /* SEQ_HPP_ */
