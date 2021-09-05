@@ -363,7 +363,6 @@ void seq::encode_NUC_4BITS(char& c, std::byte& b){
 void seq::encode(std::string& s){
 	SPDLOG_DEBUG("seq::encode");
 	uint8_t nbits_in_bytes_after_first_bit;
-	uint8_t nbits_in_the_next_byte;
 	switch(this->e_type){
 	case NUC_2BITS: case NUC_4BITS:
 		for (uint32_t i=0;i<this->n_data;i++){
@@ -378,7 +377,7 @@ void seq::encode(std::string& s){
 
 				this->encode_e_type(s[i],this->data[(this->nbits * i) / CHAR_BIT],nbits_in_bytes_after_first_bit,astride_first_byte);
 
-				nbits_in_the_next_byte=this->nbits-nbits_in_bytes_after_first_bit;
+				uint8_t nbits_in_the_next_byte=this->nbits-nbits_in_bytes_after_first_bit;
 
 				this->encode_e_type(s[i],this->data[1 + (this->nbits * i) / CHAR_BIT],nbits_in_the_next_byte,astride_second_byte);
 			}else{
@@ -413,7 +412,6 @@ char seq::decode_NUC_3BITS(uint32_t& i){
 	SPDLOG_DEBUG("seq::decode_NUC_3BITS");
 	char r='_';
 	uint8_t nbits_in_bytes_after_first_bit=CHAR_BIT - (i)*this->nbits % CHAR_BIT; //
-	uint8_t nbits_in_the_next_byte;
 	SPDLOG_TRACE("seq::decode_NUC_3BITS::nbits_in_bytes_after_first_bit={}",nbits_in_bytes_after_first_bit);
 	std::byte mask;
 	std::byte byte;
@@ -423,7 +421,7 @@ char seq::decode_NUC_3BITS(uint32_t& i){
 	if (nbits_in_bytes_after_first_bit<this->nbits){
 		SPDLOG_TRACE("seq::decode_NUC_3BITS::info is on 2 bytes");
 
-		nbits_in_the_next_byte=this->nbits-nbits_in_bytes_after_first_bit;
+		uint8_t nbits_in_the_next_byte=this->nbits-nbits_in_bytes_after_first_bit;
 		mask=b00000111 >>nbits_in_the_next_byte;
 
 		SPDLOG_TRACE("seq::decode_NUC_3BITS::nbits_in_the_next_byte={}",nbits_in_the_next_byte);
