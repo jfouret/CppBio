@@ -20,10 +20,31 @@
 
 namespace cppbio {
 
+	/**
+	 * @brief Definition of type `miscomplemented_encoding`
+	 *
+	 * Structure holding the char for 4 bits DNA decoding in case where the bitwise complement is not correct.
+	 *
+	 */
+
+typedef struct{
+	char ini_s; /**< char tobe attributed to the initial S (S complement stays S) */
+	char ini_w; /**< char tobe attributed to the initial W (W complement stays W) */
+	char ini_gap; /**< char tobe attributed to the initial - (- complement stays -) */
+	char ini_n; /**< char tobe attributed to the initial N (N complement stays N) */
+} miscomplemented_encoding;
+
+	/**
+	 * @brief Definition of type `encoding_astrideness`
+	 *
+	 * Enumeration of the different case of bytecode in the byte array
+	 *
+	 */
+
 typedef enum {
-		unique_byte,
-		astride_first_byte,
-		astride_second_byte
+		unique_byte, /**<  The bytecode in is a single adressable byte */
+		astride_first_byte, /**<  The bytecode in is a 2 addressable bytes; The first is focused*/
+		astride_second_byte /**<  The bytecode in is a 2 addressable bytes; The second is focused*/
 } encoding_astrideness;
 
 	/**
@@ -62,47 +83,14 @@ typedef enum {
 	 *
 	 *  This class implement efficient encoding of biological sequence and basic operations.
 	 *
-	 * 	2-bits nucleotide encoding
-	 *
-	 *  A : 00
-	 *  T : 01
-	 *  C : 10
-	 *  G : 11
 	 *
 	 *
-	 *	3-bits nucleotide encode
-	 *
-	 *  A                : 000
-	 *  C                : 001
-	 *  N                : 010
-	 *  gap              : 011
-	 *  complemented gap : 100
-	 *  complemented N   : 101
-	 *  G                : 110
-	 *  T                : 111
 	 *
 	 *
-	 *	4-bits nucleotide encoding
-	 *
-	 *	A       : 0000
-	 *	C       : 0001
-	 *	R       : 0010
-	 *	K       : 0011
-	 *	B       : 0100
-	 *	D       : 0101
-	 *	S or W  : 0110
-	 *	N or gap: 0111
-	 *	gap or N: 1000
-	 *	W or S  : 1001
-	 *	H       : 1010
-	 *	V       : 1011
-	 *	M       : 1100
-	 *	Y       : 1101
-	 *	G       : 1110
-	 *	T       : 1111
 	 *
 	 *
-	 *  5bit amino-acid encoding
+	 *
+	 *  TODO 5bit amino-acid encoding
 	 *
 	 *	A               : 00000
 	 *	B               : 00001
@@ -136,10 +124,6 @@ typedef enum {
 	 *	undefined 3     : 11101
 	 *	undefined 4     : 11110
 	 *	end of sequence : 11111
-	 *
-	 *
-	 *
-	 *
 	 *
 	 */
 
@@ -213,10 +197,7 @@ typedef enum {
 			uint32_t n_data; /**<  Number of element (base or amino-acid) in the seq */
 			encode_type e_type; /**<  encoding type */
 			mol_type m_type; /**<  molecule type */
-			char miscomplemented_encoding_ini_n; /**< Decoding character for the initial N encoding might be mis-complemented by the bitwise not */
-			char miscomplemented_encoding_ini_gap; /**< Decoding character for the initial gap encoding might be mis-complemented by the bitwise not */
-			char miscomplemented_encoding_ini_s; /**< Decoding character for the initial S encoding might be mis-complemented by the bitwise not */
-			char miscomplemented_encoding_ini_w; /**< Decoding character for the initial W encoding might be mis-complemented by the bitwise not */
+			miscomplemented_encoding comp_dep_mis_enc; /**< Decoding character for encoding that might be mis-complemented by the bitwise not */
 
 			// INTERNAL FUNCTIONS
 
@@ -230,12 +211,12 @@ typedef enum {
 			bool is_data_pos_valid(uint32_t& i);
 
 			// ENCODING FUNCTIONS
+			// those encoding function are not well-named.
 
-			void encode(std::string& s);
-			void encode_NUC_2BITS(char& c,std::byte & byte);
-			void encode_NUC_3BITS(char& c, std::byte & byte, uint8_t &  nbits_in_byte, encoding_astrideness astride);
-			void encode_NUC_4BITS(char& c,std::byte & byte);
-			std::function<void (char &,std::byte &,uint8_t&,encoding_astrideness astride)> encode_e_type;
+			void encode_byte_array(std::string& s);
+			std::function<void (std::byte,std::byte &,uint8_t&,encoding_astrideness astride)> right_append_bytecode_after_left_shift;
+
+			std::function<std::byte (char &)> encode;
 
 			// GET BYTES FUNCTIONS
 
@@ -246,11 +227,142 @@ typedef enum {
 
 			// DECODING FUNCTIONS
 
-			char decode_NUC_2BITS(uint32_t& i);
-			char decode_NUC_3BITS(uint32_t& i);
-			char decode_NUC_4BITS(uint32_t& i);
 			std::string decode();
-			std::function<char (uint32_t&)> decode_e_type; // if named decode there is a char/string ambiguity some times.
+			std::function<char (std::byte,miscomplemented_encoding)> decode_e_type; // if named decode there is a char/string ambiguity some times.
+
+
+
+
+
+			/*!
+			 *  @brief 2-bits nucleotide encoding
+			 *
+			 *  A : 00
+			 *  T : 01
+			 *  C : 10
+			 *  G : 11
+			 *
+			 *  @param c : char to encode
+			 *  @return byte code for input char
+			 */
+			std::byte encode_NUC_2BITS(char& c);
+
+			/*!
+			 *  @brief 3-bits nucleotide encoding
+			 *
+			 *  A                : 000
+			 *  C                : 001
+			 *  N                : 010
+			 *  gap              : 011
+			 *  complemented gap : 100
+			 *  complemented N   : 101
+			 *  G                : 110
+			 *  T                : 111
+			 *
+			 *  @param c : char to encode
+			 *  @return byte code for input char
+			 */
+
+			std::byte encode_NUC_3BITS(char& c);
+
+			/*!
+			 *  @brief 4-bits nucleotide encoding
+			 *
+			 *
+			 *	A       : 0000
+			 *	C       : 0001
+			 *	R       : 0010
+			 *	K       : 0011
+			 *	B       : 0100
+			 *	D       : 0101
+			 *	S or W  : 0110
+			 *	N or gap: 0111
+			 *	gap or N: 1000
+			 *	W or S  : 1001
+			 *	H       : 1010
+			 *	V       : 1011
+			 *	M       : 1100
+			 *	Y       : 1101
+			 *	G       : 1110
+			 *	T       : 1111
+			 *
+			 *  @param c : char to encode
+			 *  @return byte code for input char
+			 */
+
+			std::byte encode_NUC_4BITS(char& c);
+
+			/*!
+			 *  @brief Right append a 2-bits bytecode in byte after left shift
+			 *
+			 *  First we apply bitwise leftshift of 2 on the byte to be appended.
+			 *  Then modify this byte with the result of a bitwise OR between itself and the bytecode.
+			 *
+			 *  @param c : bytecode
+			 *  @param byte : appended byte
+			 */
+
+			void right_append_bytecode_after_left_shift_NUC_2BITS(std::byte c,std::byte & byte);
+
+			/*!
+			 *  @brief Right append a 3-bits bytecode in byte after left shift
+			 *
+			 *  First we apply bitwise leftshift of 3 on the byte to be appended.
+			 *  Then modify this byte with the result of a bitwise OR between itself and the bytecode.
+			 *
+			 *  @param c : bytecode
+			 *  @param byte : appended byte
+			 *  @return decoded char
+			 */
+
+			void right_append_bytecode_after_left_shift_NUC_3BITS(std::byte c,std::byte & byte, uint8_t &  nbits_in_byte, encoding_astrideness astride);
+
+			/*!
+			 *  @brief Right append a 4-bits bytecode in byte after left shift
+			 *
+			 *  First we apply bitwise leftshift of 4 on the byte to be appended.
+			 *  Then modify this byte with the result of a bitwise OR between itself and the bytecode.
+			 *
+			 *  @param c : bytecode
+			 *  @param byte : appended byte
+			 */
+
+			void right_append_bytecode_after_left_shift_NUC_4BITS(std::byte c,std::byte & byte);
+
+			/*!
+			 *  @brief 2-bits nucleotide decoding
+			 *
+			 *	@see encode_NUC_2BITS
+			 *  @param b : byte to decode
+			 *  @return decoded char
+			 */
+
+			char decode_NUC_2BITS(std::byte b);
+
+			/*!
+			 *  @brief 3-bits nucleotide decoding
+			 *
+			 *	@see encode_NUC_3BITS
+			 *  @param b : byte to decode
+			 *  @return decoded char
+			 */
+
+			char decode_NUC_3BITS(std::byte b);
+
+			/*!
+			 *  @brief 4-bits nucleotide decoding
+			 *
+			 *	@see encode_NUC_4BITS
+			 *  @param b : byte to decode
+			 *  @return decoded char
+			 */
+
+			char decode_NUC_4BITS(std::byte b,miscomplemented_encoding mis_enc ={'S','W','-','N'});
+
+
+
+
+
 	};
 }
 #endif /* SEQ_HPP_ */
