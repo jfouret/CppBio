@@ -437,12 +437,9 @@ char seq::decode_NUC_3BITS(uint32_t& i){
 		//spdlog::debug("seq::decode_NUC_3BITS::2nd byte shift={}",shift);
 		//byte_log=(this->data[1 + (this->nbits * i) / CHAR_BIT] >> shift);
 		//spdlog::debug("seq::decode_NUC_3BITS::2nd  byte shifted={}",std::bitset<8>{byte_log}.to_string());
-		mask=b11111111 >>shift ;
-		//byte_log=mask;
-		//spdlog::debug("seq::decode_NUC_3BITS::mask (b11111111 shifted)={}",std::bitset<8>{byte_log}.to_string());
 		//byte_log=(this->data[1 + (this->nbits * i) / CHAR_BIT] >> shift) & mask;
 		//spdlog::debug("seq::decode_NUC_3BITS::2nd  byte shifted masked={}",std::bitset<8>{byte_log}.to_string());
-		byte|= ((this->data[1 + (this->nbits * i) / CHAR_BIT] >> shift)& mask) ;
+		byte|= (this->data[1 + (this->nbits * i) / CHAR_BIT] >> shift) ;
 		//spdlog::debug("seq::decode_NUC_3BITS::final byte={}",std::bitset<8>{byte}.to_string());
 	}else{
 		spdlog::debug("seq::decode_NUC_3BITS::info is on  byte");
