@@ -7,7 +7,7 @@
 
 #include <seq.hpp>
 
-// MACRO to be used within seq::set_encode_parameters only
+// constant of byte-typed binary code often used
 
 const std::byte b00 {0b00};
 const std::byte b01 {0b01};
@@ -45,6 +45,8 @@ const std::byte b00000001 {0b00000001};
 const std::byte b00000011 {0b00000011};
 const std::byte b00000111 {0b00000111};
 const std::byte b00001111 {0b00001111};
+
+// MACRO to be used within seq::set_encode_parameters only
 
 #define PARSE_STR_ENCODING(XA,XB,XC,XD,XE,XF) {\
 switch(toupper(c)){\
@@ -412,45 +414,45 @@ char seq::decode_NUC_3BITS(uint32_t& i){
 	char r='_';
 	uint8_t nbits_in_bytes_after_first_bit=CHAR_BIT - (i)*this->nbits % CHAR_BIT; //
 	uint8_t nbits_in_the_next_byte;
-	SPDLOG_DEBUG("seq::decode_NUC_3BITS::nbits_in_bytes_after_first_bit={}",nbits_in_bytes_after_first_bit);
+	SPDLOG_TRACE("seq::decode_NUC_3BITS::nbits_in_bytes_after_first_bit={}",nbits_in_bytes_after_first_bit);
 	std::byte mask;
 	std::byte byte;
 	//char byte_log;
 	uint8_t shift;
 
 	if (nbits_in_bytes_after_first_bit<this->nbits){
-		SPDLOG_DEBUG("seq::decode_NUC_3BITS::info is on 2 bytes");
+		SPDLOG_TRACE("seq::decode_NUC_3BITS::info is on 2 bytes");
 
 		nbits_in_the_next_byte=this->nbits-nbits_in_bytes_after_first_bit;
 		mask=b00000111 >>nbits_in_the_next_byte;
 
-		SPDLOG_DEBUG("seq::decode_NUC_3BITS::nbits_in_the_next_byte={}",nbits_in_the_next_byte);
-		SPDLOG_DEBUG("seq::decode_NUC_3BITS::mask={}",std::bitset<8>{(int)mask}.to_string());
+		SPDLOG_TRACE("seq::decode_NUC_3BITS::nbits_in_the_next_byte={}",nbits_in_the_next_byte);
+		SPDLOG_TRACE("seq::decode_NUC_3BITS::mask={}",std::bitset<8>{(long long unsigned int)mask}.to_string());
 
-		SPDLOG_DEBUG("seq::decode_NUC_3BITS::1st  byte={}",std::bitset<8>{(int)(this->data[(this->nbits * i) / CHAR_BIT])}.to_string());
+		SPDLOG_TRACE("seq::decode_NUC_3BITS::1st  byte={}",std::bitset<8>{(long long unsigned int)(this->data[(this->nbits * i) / CHAR_BIT])}.to_string());
 
-		SPDLOG_DEBUG("seq::decode_NUC_3BITS::2nd  byte={}",std::bitset<8>{(int)(this->data[1+(this->nbits * i) / CHAR_BIT])}.to_string());
+		SPDLOG_TRACE("seq::decode_NUC_3BITS::2nd  byte={}",std::bitset<8>{(long long unsigned int)(this->data[1+(this->nbits * i) / CHAR_BIT])}.to_string());
 
 		byte= mask & (this->data[(this->nbits * i) / CHAR_BIT]);
 
-		SPDLOG_DEBUG("seq::decode_NUC_3BITS::1st  byte masked={}",std::bitset<8>{(int)byte}.to_string());
+		SPDLOG_TRACE("seq::decode_NUC_3BITS::1st  byte masked={}",std::bitset<8>{(long long unsigned int)byte}.to_string());
 
 		byte=byte<<nbits_in_the_next_byte;
 
-		SPDLOG_DEBUG("seq::decode_NUC_3BITS::1st  byte masked shifted={}",std::bitset<8>{(int)byte}.to_string());
+		SPDLOG_TRACE("seq::decode_NUC_3BITS::1st  byte masked shifted={}",std::bitset<8>{(long long unsigned int)byte}.to_string());
 
 		shift=CHAR_BIT-nbits_in_the_next_byte;
 
-		SPDLOG_DEBUG("seq::decode_NUC_3BITS::2nd byte shift={}",shift);
+		SPDLOG_TRACE("seq::decode_NUC_3BITS::2nd byte shift={}",shift);
 
-		SPDLOG_DEBUG("seq::decode_NUC_3BITS::2nd  byte shifted={}",std::bitset<8>{(int)((this->data[1 + (this->nbits * i) / CHAR_BIT] >> shift))}.to_string());
+		SPDLOG_TRACE("seq::decode_NUC_3BITS::2nd  byte shifted={}",std::bitset<8>{(long long unsigned int)((this->data[1 + (this->nbits * i) / CHAR_BIT] >> shift))}.to_string());
 
 		byte|= (this->data[1 + (this->nbits * i) / CHAR_BIT] >> shift) ;
 
-		SPDLOG_DEBUG("seq::decode_NUC_3BITS::final byte={}",std::bitset<8>{(int)byte}.to_string());
+		SPDLOG_TRACE("seq::decode_NUC_3BITS::final byte={}",std::bitset<8>{(long long unsigned int)byte}.to_string());
 	}else{
-		SPDLOG_DEBUG("seq::decode_NUC_3BITS::info is on  byte");
-		SPDLOG_DEBUG("seq::decode_NUC_3BITS::byte={}",std::bitset<8>{(int)(data[(this->nbits * i) / CHAR_BIT])}.to_string());
+		SPDLOG_TRACE("seq::decode_NUC_3BITS::info is on  byte");
+		SPDLOG_TRACE("seq::decode_NUC_3BITS::byte={}",std::bitset<8>{(long long unsigned int)(data[(this->nbits * i) / CHAR_BIT])}.to_string());
 		mask=b00000111;
 		shift=nbits_in_bytes_after_first_bit-this->nbits;
 		byte=b00000111 & (this->data[(this->nbits * i) / CHAR_BIT]>>shift);
@@ -500,14 +502,14 @@ char seq::decode_NUC_4BITS(uint32_t& i){
 std::string seq::decode(){
 	SPDLOG_DEBUG("seq::decode");
 	std::string r = "";
-	SPDLOG_DEBUG("seq::decode::start iteration");
+	SPDLOG_TRACE("seq::decode::start iteration");
 	for(uint32_t i=this->get_begin_data_pos(); this->is_data_pos_valid(i) ; this->increment_begin_data_pos(i) ){
-		SPDLOG_DEBUG("seq::decode::i={}",i);
-		SPDLOG_DEBUG("seq::decode:: before push_back r= "+r);
+		SPDLOG_TRACE("seq::decode::i={}",i);
+		SPDLOG_TRACE("seq::decode:: before push_back r= "+r);
 		r.push_back(this->decode_e_type(i));
 	};
-	SPDLOG_DEBUG("seq::decode::iteration eneded");
-	SPDLOG_DEBUG("seq::decode::r= "+r);
+	SPDLOG_TRACE("seq::decode::iteration eneded");
+	SPDLOG_TRACE("seq::decode::r= "+r);
 	return(r);
 };
 

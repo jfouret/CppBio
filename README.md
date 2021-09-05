@@ -44,6 +44,10 @@ sudo apt-get install libboost-test-dev valgrind
 make test
 ```
 
+## Run with logs
+
+replace `SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_ERROR` by `SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_DEBUG` or `SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE`
+
 ## clean the repository
 
 ```shell

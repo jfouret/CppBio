@@ -26,7 +26,7 @@ std::string comp_i3		="TTTTNAAA-GGC";
 std::string revcomp_i3	="CGG-AAANTTTT";
 
 TestFixture1::TestFixture1(){
-	spdlog::set_level(spdlog::level::err); // Set global log level to debug
+	spdlog::set_level(spdlog::level::trace); // Set global log level to debug
 	spdlog::set_pattern("[%H:%M:%S %z] [%L] %v");
     this->s1 = i1;
     this->s2.reset(new seq(i2));
