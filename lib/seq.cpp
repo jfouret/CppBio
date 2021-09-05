@@ -9,6 +9,43 @@
 
 // MACRO to be used within seq::set_encode_parameters only
 
+const std::byte b00 {0b00};
+const std::byte b01 {0b01};
+const std::byte b10 {0b10};
+const std::byte b11 {0b11};
+
+const std::byte b000 {0b000};
+const std::byte b001 {0b001};
+const std::byte b010 {0b010};
+const std::byte b011 {0b011};
+const std::byte b100 {0b100};
+const std::byte b101 {0b101};
+const std::byte b110 {0b110};
+const std::byte b111 {0b111};
+
+const std::byte b0000 {0b0000};
+const std::byte b0001 {0b0001};
+const std::byte b0010 {0b0010};
+const std::byte b0011 {0b0011};
+const std::byte b0100 {0b0100};
+const std::byte b0101 {0b0101};
+const std::byte b0110 {0b0110};
+const std::byte b0111 {0b0111};
+const std::byte b1000 {0b1000};
+const std::byte b1001 {0b1001};
+const std::byte b1010 {0b1010};
+const std::byte b1011 {0b1011};
+const std::byte b1100 {0b1100};
+const std::byte b1101 {0b1101};
+const std::byte b1110 {0b1110};
+const std::byte b1111 {0b1111};
+
+const std::byte b11111111 {0b11111111};
+const std::byte b00000001 {0b00000001};
+const std::byte b00000011 {0b00000011};
+const std::byte b00000111 {0b00000111};
+const std::byte b00001111 {0b00001111};
+
 #define PARSE_STR_ENCODING(XA,XB,XC,XD,XE,XF) {\
 switch(toupper(c)){\
 	case 'A':case 'T':case 'C':case 'G':\
@@ -60,7 +97,7 @@ seq::seq(){
 	this->is_rev=false;
 	this->is_comp=false;
 	this->set_miscomplemented_encoding();
-	this->data.reset(new char[0]);
+	this->data.reset(new std::byte[0]);
 	// note that decode is not defined
 };
 
@@ -201,21 +238,21 @@ void seq::set_encode_parameters(std::string& s){
 	this->n_bytes = (length*this->nbits) / CHAR_BIT ;
 	this->n_data = length;
 	if ((length*this->nbits) % CHAR_BIT){ this->n_bytes++; } ;
-	this->data.reset(new char[this->n_bytes]);
+	this->data.reset(new std::byte[this->n_bytes]);
 	this->is_rev=false;
 	this->is_comp=false;
 	switch(this->e_type){
 	case NUC_2BITS:
 		this->decode_e_type = [=](uint32_t in_k){return this->decode_NUC_2BITS(in_k);};
-		this->encode_e_type = [=](char& in_c, char& in_b,uint8_t& in_k,encoding_astrideness in_astride){this->encode_NUC_2BITS(in_c,in_b);};
+		this->encode_e_type = [=](char& in_c, std::byte& in_b,uint8_t& in_k,encoding_astrideness in_astride){this->encode_NUC_2BITS(in_c,in_b);};
 	break;
 	case NUC_3BITS:
 		this->decode_e_type = [=](uint32_t in_k){return this->decode_NUC_3BITS(in_k);};
-		this->encode_e_type = [=](char& in_c, char& in_b,uint8_t& in_k,encoding_astrideness in_astride){this->encode_NUC_3BITS(in_c,in_b,in_k,in_astride);};
+		this->encode_e_type = [=](char& in_c, std::byte& in_b,uint8_t& in_k,encoding_astrideness in_astride){this->encode_NUC_3BITS(in_c,in_b,in_k,in_astride);};
 	break;
 	case NUC_4BITS:
 			this->decode_e_type = [=](uint32_t in_k){return this->decode_NUC_4BITS(in_k);};
-			this->encode_e_type = [=](char& in_c, char& in_b,uint8_t& in_k,encoding_astrideness in_astride){this->encode_NUC_4BITS(in_c,in_b);};
+			this->encode_e_type = [=](char& in_c, std::byte& in_b,uint8_t& in_k,encoding_astrideness in_astride){this->encode_NUC_4BITS(in_c,in_b);};
 		break;
 	default: break;
 	};
@@ -238,14 +275,14 @@ void seq::set_miscomplemented_encoding(){
 	}
 };
 
-void seq::encode_NUC_2BITS(char& c, char& b){
+void seq::encode_NUC_2BITS(char& c, std::byte& b){
 	spdlog::debug("seq::encode_NUC_2BITS");
 	b = b << 2;
 	switch(toupper(c)){
-	case 'A': b |= 0b00; break;
-	case 'C': b |= 0b01; break;
-	case 'G': b |= 0b10; break;
-	case 'T': b |= 0b11; break;
+	case 'A': b |= b00; break;
+	case 'C': b |= b01; break;
+	case 'G': b |= b10; break;
+	case 'T': b |= b11; break;
 	default:break;
 	};
 }
@@ -254,7 +291,7 @@ void seq::encode_NUC_2BITS(char& c, char& b){
 //astride_first_byte,
 //astride_second_byte
 
-void seq::encode_NUC_3BITS(char& c, char& b,uint8_t & nbits_in_byte,encoding_astrideness astrideness){
+void seq::encode_NUC_3BITS(char& c, std::byte & b,uint8_t & nbits_in_byte,encoding_astrideness astrideness){
 	spdlog::debug("seq::encode_NUC_3BITS");
 	uint8_t shift=std::min(nbits_in_byte,this->nbits);
 	b = b << shift;
@@ -263,60 +300,60 @@ void seq::encode_NUC_3BITS(char& c, char& b,uint8_t & nbits_in_byte,encoding_ast
 	switch (astrideness){
 	case unique_byte:
 		switch(toupper(c)){
-		case 'A': b |= (0b000); break;
-		case 'C': b |= (0b001); break;
-		case 'N': b |= (0b010); break;
-		case '-': b |= (0b011); break;
-		case 'G': b |= (0b110); break;
-		case 'T': b |= (0b111); break;
+		case 'A': b |= (b000); break;
+		case 'C': b |= (b001); break;
+		case 'N': b |= (b010); break;
+		case '-': b |= (b011); break;
+		case 'G': b |= (b110); break;
+		case 'T': b |= (b111); break;
 		default:break;
 		};
 		break;
 	case astride_first_byte:
 		switch(toupper(c)){ // erase the end of 2bits code
-		case 'A': b |= (0b000 >> shift); break;
-		case 'C': b |= (0b001 >> shift); break;
-		case 'N': b |= (0b010 >> shift); break;
-		case '-': b |= (0b011 >> shift); break;
-		case 'G': b |= (0b110 >> shift); break;
-		case 'T': b |= (0b111 >> shift); break;
+		case 'A': b |= (b000 >> shift); break;
+		case 'C': b |= (b001 >> shift); break;
+		case 'N': b |= (b010 >> shift); break;
+		case '-': b |= (b011 >> shift); break;
+		case 'G': b |= (b110 >> shift); break;
+		case 'T': b |= (b111 >> shift); break;
 		default:break;
 		};
 		break;
 	case astride_second_byte:
 		switch(toupper(c)){ // erase the begining of 2bits code
-		case 'A': b |= (0b000 & (0b111 >> shift)); break;
-		case 'C': b |= (0b001 & (0b111 >> shift)); break;
-		case 'N': b |= (0b010 & (0b111 >> shift)); break;
-		case '-': b |= (0b011 & (0b111 >> shift)); break;
-		case 'G': b |= (0b110 & (0b111 >> shift)); break;
-		case 'T': b |= (0b111 & (0b111 >> shift)); break;
+		case 'A': b |= (b000 & (b111 >> shift)); break;
+		case 'C': b |= (b001 & (b111 >> shift)); break;
+		case 'N': b |= (b010 & (b111 >> shift)); break;
+		case '-': b |= (b011 & (b111 >> shift)); break;
+		case 'G': b |= (b110 & (b111 >> shift)); break;
+		case 'T': b |= (b111 & (b111 >> shift)); break;
 		default:break;
 		};
 		break;
 	};
 }
 
-void seq::encode_NUC_4BITS(char& c, char& b){
+void seq::encode_NUC_4BITS(char& c, std::byte& b){
 	spdlog::debug("seq::encode_NUC_4BITS");
 	b = b << 4;
 	switch(toupper(c)){
-	case 'A': b |= 0b0000; break;
-	case 'C': b |= 0b0001; break;
-	case 'R': b |= 0b0010; break;
-	case 'K': b |= 0b0011; break;
-	case 'B': b |= 0b0100; break;
-	case 'D': b |= 0b0101; break;
-	case 'S': b |= 0b0110; break;
-	case 'N': b |= 0b0111; break;
-	case '-': b |= 0b1000; break;
-	case 'W': b |= 0b1001; break;
-	case 'H': b |= 0b1010; break;
-	case 'V': b |= 0b1011; break;
-	case 'M': b |= 0b1100; break;
-	case 'Y': b |= 0b1101; break;
-	case 'G': b |= 0b1110; break;
-	case 'T': b |= 0b1111; break;
+	case 'A': b |= b0000; break;
+	case 'C': b |= b0001; break;
+	case 'R': b |= b0010; break;
+	case 'K': b |= b0011; break;
+	case 'B': b |= b0100; break;
+	case 'D': b |= b0101; break;
+	case 'S': b |= b0110; break;
+	case 'N': b |= b0111; break;
+	case '-': b |= b1000; break;
+	case 'W': b |= b1001; break;
+	case 'H': b |= b1010; break;
+	case 'V': b |= b1011; break;
+	case 'M': b |= b1100; break;
+	case 'Y': b |= b1101; break;
+	case 'G': b |= b1110; break;
+	case 'T': b |= b1111; break;
 	default:break;
 	};
 }
@@ -359,12 +396,12 @@ char seq::decode_NUC_2BITS(uint32_t& i){
 	spdlog::debug("seq::decode_NUC_2BITS");
 	char r;
 	char nshift=6 - 2 * (i%4);
-	char byte= this->data[i/4] >> nshift;
-	switch(byte & 0b00000011){
-	case 0b00: r='A'; break;
-	case 0b01: r='C'; break;
-	case 0b10: r='G'; break;
-	case 0b11: r='T'; break;
+	std::byte byte= this->data[i/4] >> nshift;
+	switch(byte & b00000011){
+	case b00: r='A'; break;
+	case b01: r='C'; break;
+	case b10: r='G'; break;
+	case b11: r='T'; break;
 	default:break;
 	};
 	return(r);
@@ -376,15 +413,15 @@ char seq::decode_NUC_3BITS(uint32_t& i){
 	uint8_t nbits_in_bytes_after_first_bit=CHAR_BIT - (i)*this->nbits % CHAR_BIT; //
 	uint8_t nbits_in_the_next_byte;
 	//spdlog::debug("seq::decode_NUC_3BITS::nbits_in_bytes_after_first_bit={}",nbits_in_bytes_after_first_bit);
-	char mask;
-	char byte;
+	std::byte mask;
+	std::byte byte;
 	//char byte_log;
 	uint8_t shift;
 
 	if (nbits_in_bytes_after_first_bit<this->nbits){
 		//spdlog::debug("seq::decode_NUC_3BITS::info is on 2 bytes");
 		nbits_in_the_next_byte=this->nbits-nbits_in_bytes_after_first_bit;
-		mask=0b00000111 >>nbits_in_the_next_byte;
+		mask=b00000111 >>nbits_in_the_next_byte;
 		//spdlog::debug("seq::decode_NUC_3BITS::nbits_in_the_next_byte={}",nbits_in_the_next_byte);
 		//spdlog::debug("seq::decode_NUC_3BITS::mask={}",std::bitset<8>{mask}.to_string());
 		//byte_log=this->data[(this->nbits * i) / CHAR_BIT];
@@ -400,9 +437,9 @@ char seq::decode_NUC_3BITS(uint32_t& i){
 		//spdlog::debug("seq::decode_NUC_3BITS::2nd byte shift={}",shift);
 		//byte_log=(this->data[1 + (this->nbits * i) / CHAR_BIT] >> shift);
 		//spdlog::debug("seq::decode_NUC_3BITS::2nd  byte shifted={}",std::bitset<8>{byte_log}.to_string());
-		mask=0b11111111 >>shift ;
+		mask=b11111111 >>shift ;
 		//byte_log=mask;
-		//spdlog::debug("seq::decode_NUC_3BITS::mask (0b11111111 shifted)={}",std::bitset<8>{byte_log}.to_string());
+		//spdlog::debug("seq::decode_NUC_3BITS::mask (b11111111 shifted)={}",std::bitset<8>{byte_log}.to_string());
 		//byte_log=(this->data[1 + (this->nbits * i) / CHAR_BIT] >> shift) & mask;
 		//spdlog::debug("seq::decode_NUC_3BITS::2nd  byte shifted masked={}",std::bitset<8>{byte_log}.to_string());
 		byte|= ((this->data[1 + (this->nbits * i) / CHAR_BIT] >> shift)& mask) ;
@@ -411,18 +448,18 @@ char seq::decode_NUC_3BITS(uint32_t& i){
 		spdlog::debug("seq::decode_NUC_3BITS::info is on  byte");
 		//byte_log=this->data[(this->nbits * i) / CHAR_BIT];
 		//spdlog::debug("seq::decode_NUC_3BITS::byte={}",std::bitset<8>{byte_log}.to_string());
-		mask=0b00000111;
+		mask=b00000111;
 		shift=nbits_in_bytes_after_first_bit-this->nbits;
-		byte=0b00000111 & (this->data[(this->nbits * i) / CHAR_BIT]>>shift);
+		byte=b00000111 & (this->data[(this->nbits * i) / CHAR_BIT]>>shift);
 	}
 
 	switch(byte){
-	case 0b000: r='A'; break;
-	case 0b001: r='C'; break;
-	case 0b010: case 0b101: r='N'; break;
-	case 0b011: case 0b100: r='-'; break;
-	case 0b110: r='G'; break;
-	case 0b111: r='T'; break;
+	case b000: r='A'; break;
+	case b001: r='C'; break;
+	case b010: case b101: r='N'; break;
+	case b011: case b100: r='-'; break;
+	case b110: r='G'; break;
+	case b111: r='T'; break;
 	default:break;
 	};
 	return(r);
@@ -432,26 +469,26 @@ char seq::decode_NUC_4BITS(uint32_t& i){
 	spdlog::debug("seq::decode_NUC_4BITS");
 	char r;
 
-	char nshift=4 * (1 - i%2);
-	char byte=this->data[i/2]>>nshift;
+	uint8_t nshift=4 * (1 - i%2);
+	std::byte byte=this->data[i/2]>>nshift;
 
-	switch(0b00001111 & byte){
-	case 0b0000: r='A'; break;
-	case 0b0001: r='C'; break;
-	case 0b0010: r='R'; break;
-	case 0b0011: r='K'; break;
-	case 0b0100: r='B'; break;
-	case 0b0101: r='D'; break;
-	case 0b0110: r=this->miscomplemented_encoding_ini_s; break;
-	case 0b0111: r=this->miscomplemented_encoding_ini_n; break;
-	case 0b1000: r=this->miscomplemented_encoding_ini_gap; break;
-	case 0b1001: r=this->miscomplemented_encoding_ini_w; break;
-	case 0b1010: r='H'; break;
-	case 0b1011: r='V'; break;
-	case 0b1100: r='M'; break;
-	case 0b1101: r='Y'; break;
-	case 0b1110: r='G'; break;
-	case 0b1111: r='T'; break;
+	switch(b00001111 & byte){
+	case b0000: r='A'; break;
+	case b0001: r='C'; break;
+	case b0010: r='R'; break;
+	case b0011: r='K'; break;
+	case b0100: r='B'; break;
+	case b0101: r='D'; break;
+	case b0110: r=this->miscomplemented_encoding_ini_s; break;
+	case b0111: r=this->miscomplemented_encoding_ini_n; break;
+	case b1000: r=this->miscomplemented_encoding_ini_gap; break;
+	case b1001: r=this->miscomplemented_encoding_ini_w; break;
+	case b1010: r='H'; break;
+	case b1011: r='V'; break;
+	case b1100: r='M'; break;
+	case b1101: r='Y'; break;
+	case b1110: r='G'; break;
+	case b1111: r='T'; break;
 	default:break;
 	};
 	return(r);

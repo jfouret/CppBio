@@ -6,7 +6,7 @@ BUILD_DIR=build
 
 # Define default make variables
 CXX=g++
-CXXFLAGS=-O0 -g3 -Wall
+CXXFLAGS=-O0 -std=c++17 -g3 -Wall
 RM=rm -f
 LDLIBS=
 LDFLAGS=
@@ -23,7 +23,7 @@ LIBS_GCOV_PATH=$(addprefix ${BUILD_DIR}/coverage/,$(addsuffix .gcov,$(LIBS_NAME)
 comma := ,
 $(eval $(LIBS_TEST_PATH): LDLIBS=-lboost_unit_test_framework)
 $(eval $(LIBS_TEST_PATH): LDFLAGS=-Wl$(comma)--no-as-needed)
-$(eval $(LIBS_TEST_PATH): CXXFLAGS=-O0 -g3 -Wall -fprofile-arcs -ftest-coverage)
+$(eval $(LIBS_TEST_PATH): CXXFLAGS=-O0 -std=c++17 -g3 -Wall -fprofile-arcs -ftest-coverage)
 
 # Phony definition
 
