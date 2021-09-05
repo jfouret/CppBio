@@ -401,32 +401,6 @@ std::byte seq::get_byte_NUC_2BITS(uint32_t& i){
 	return(byte & b00000011);
 };
 std::byte seq::get_byte_NUC_3BITS(uint32_t& i){
-	return b00;
-};
-std::byte seq::get_byte_NUC_4BITS(uint32_t& i){
-	SPDLOG_DEBUG("seq::get_byte_NUC_4BITS");
-	uint8_t nshift=4 * (1 - i%2);
-	std::byte byte=this->data[i/2]>>nshift;
-	return(b00001111 & byte);
-};
-
-// DECODING FUNCTIONS
-
-char seq::decode_NUC_2BITS(uint32_t& i){
-	char r;
-	SPDLOG_DEBUG("seq::decode_NUC_2BITS");
-	switch(this->get_byte(i)){
-	case b00: r='A'; break;
-	case b01: r='C'; break;
-	case b10: r='G'; break;
-	case b11: r='T'; break;
-	default:break;
-	};
-	return(r);
-}
-char seq::decode_NUC_3BITS(uint32_t& i){
-	SPDLOG_DEBUG("seq::decode_NUC_3BITS");
-	char r='_';
 	uint8_t nbits_in_bytes_after_first_bit=CHAR_BIT - (i)*this->nbits % CHAR_BIT; //
 	SPDLOG_TRACE("seq::decode_NUC_3BITS::nbits_in_bytes_after_first_bit={}",nbits_in_bytes_after_first_bit);
 	std::byte mask;
@@ -471,8 +445,33 @@ char seq::decode_NUC_3BITS(uint32_t& i){
 		shift=nbits_in_bytes_after_first_bit-this->nbits;
 		byte=b00000111 & (this->data[(this->nbits * i) / CHAR_BIT]>>shift);
 	}
+	return(byte);
+};
+std::byte seq::get_byte_NUC_4BITS(uint32_t& i){
+	SPDLOG_DEBUG("seq::get_byte_NUC_4BITS");
+	uint8_t nshift=4 * (1 - i%2);
+	std::byte byte=this->data[i/2]>>nshift;
+	return(b00001111 & byte);
+};
 
-	switch(byte){
+// DECODING FUNCTIONS
+
+char seq::decode_NUC_2BITS(uint32_t& i){
+	char r;
+	SPDLOG_DEBUG("seq::decode_NUC_2BITS");
+	switch(this->get_byte(i)){
+	case b00: r='A'; break;
+	case b01: r='C'; break;
+	case b10: r='G'; break;
+	case b11: r='T'; break;
+	default:break;
+	};
+	return(r);
+}
+char seq::decode_NUC_3BITS(uint32_t& i){
+	SPDLOG_DEBUG("seq::decode_NUC_3BITS");
+	char r='_';
+	switch(get_byte(i)){
 	case b000: r='A'; break;
 	case b001: r='C'; break;
 	case b010: case b101: r='N'; break;
