@@ -29,7 +29,7 @@ TestFixture1::TestFixture1(){
 	spdlog::set_level(spdlog::level::trace); // Set global log level to debug
 	spdlog::set_pattern("[%H:%M:%S %z] [%L] %v");
     this->s1 = i1;
-    this->s2.reset(new seq(i2));
+    this->s2.reset(new seq<uint16_t>(i2));
     this->s3 = i3;
 };
 

@@ -9,7 +9,7 @@ SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_ERROR
 
 # Define default make variables
 CXX=g++
-CXXFLAGS=-O0 -std=c++17 -g3 -Wall
+CXXFLAGS=-O0 -std=c++20 -fconcepts -g3 -Wall
 RM=rm -f
 LDLIBS=-lspdlog
 LDFLAGS=-DSPDLOG_ACTIVE_LEVEL=$(SPDLOG_ACTIVE_LEVEL) -DSPDLOG_COMPILED_LIB
@@ -31,22 +31,25 @@ $(eval $(LIBS_TEST_PATH): CXXFLAGS=$(CXXFLAGS) -fprofile-arcs -ftest-coverage)
 # Phony definition
 
 .PHONY: lib
-lib: ${LIBS_STATIC_PATH}
+lib: check ${LIBS_STATIC_PATH}
 
 .PHONY: test
-test: ${LIBS_TEST_PATH}
+test: check ${LIBS_TEST_PATH}
 
 .PHONY: clean
 clean:
 	${RM} -r ${BUILD_DIR} *.gcda *.gcno *.gcov
 
 .PHONY: doc
-doc:
+doc: 
 	doxygen doxyfile
 
 .PHONY: coverage
-coverage: ${BUILD_DIR}/coverage/index.html
+coverage: check ${BUILD_DIR}/coverage/index.html
 
+.PHONY: check
+check:
+	bash check.sh
 # Manage arborescence
 
 ${BUILD_DIR}:

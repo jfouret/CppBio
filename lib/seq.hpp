@@ -17,6 +17,8 @@
 #include "spdlog/spdlog.h"
 #include <bitset>
 #include <cstddef>
+#include <cassert>
+#include <concepts>
 
 namespace cppbio {
 
@@ -28,10 +30,10 @@ namespace cppbio {
 	 */
 
 typedef struct{
-	char ini_s; /**< char tobe attributed to the initial S (S complement stays S) */
-	char ini_w; /**< char tobe attributed to the initial W (W complement stays W) */
-	char ini_gap; /**< char tobe attributed to the initial - (- complement stays -) */
-	char ini_n; /**< char tobe attributed to the initial N (N complement stays N) */
+	char ini_s; /**< char to be attributed to the initial S (S complement stays S) */
+	char ini_w; /**< char to be attributed to the initial W (W complement stays W) */
+	char ini_gap; /**< char to be attributed to the initial - (- complement stays -) */
+	char ini_n; /**< char to be attributed to the initial N (N complement stays N) */
 } miscomplemented_encoding;
 
 	/**
@@ -127,6 +129,11 @@ typedef enum {
 	 *
 	 */
 
+
+	template<typename T_uint>
+	concept IsAnyOf = (std::same_as<T_uint, uint8_t> || std::same_as<T_uint, uint16_t> || std::same_as<T_uint, uint32_t> || std::same_as<T_uint, uint64_t>);
+
+	template<IsAnyOf T_uint>
 	class seq{
 		public:
 			/*!
@@ -193,8 +200,8 @@ typedef enum {
 			bool is_rev; /**<  whether the seq should be read in reverse or not */
 			bool is_comp; /**<  whether the seq should be treated as complement or not */
 			uint8_t nbits; /**<  Number of bits to store an element */
-			uint32_t n_bytes; /**<  Number of bytes to encode the seq */
-			uint32_t n_data; /**<  Number of element (base or amino-acid) in the seq */
+			T_uint n_bytes; /**<  Number of bytes to encode the seq */
+			T_uint n_data; /**<  Number of element (base or amino-acid) in the seq */
 			encode_type e_type; /**<  encoding type */
 			mol_type m_type; /**<  molecule type */
 			miscomplemented_encoding comp_dep_mis_enc; /**< Decoding character for encoding that might be mis-complemented by the bitwise not */
@@ -206,32 +213,28 @@ typedef enum {
 
 			// DATA POSITION ITERATION FUNCTIONS
 
-			uint32_t get_begin_data_pos(); // not a reference given the function
-			void increment_begin_data_pos(uint32_t& i);
-			bool is_data_pos_valid(uint32_t& i);
+			T_uint get_begin_data_pos(); // not a reference given the function
+			void increment_begin_data_pos(T_uint& i);
+			bool is_data_pos_valid(T_uint& i);
 
 			// ENCODING FUNCTIONS
 			// those encoding function are not well-named.
 
 			void encode_byte_array(std::string& s);
 			std::function<void (std::byte,std::byte &,uint8_t&,encoding_astrideness astride)> right_append_bytecode_after_left_shift;
-
 			std::function<std::byte (char &)> encode;
 
 			// GET BYTES FUNCTIONS
 
-			std::byte get_byte_NUC_2BITS(uint32_t& i);
-			std::byte get_byte_NUC_3BITS(uint32_t& i);
-			std::byte get_byte_NUC_4BITS(uint32_t& i);
-			std::function<std::byte (uint32_t&)> get_byte;
+			std::byte get_byte_NUC_2BITS(T_uint& i);
+			std::byte get_byte_NUC_3BITS(T_uint& i);
+			std::byte get_byte_NUC_4BITS(T_uint& i);
+			std::function<std::byte (T_uint&)> get_byte;
 
 			// DECODING FUNCTIONS
 
 			std::string decode();
 			std::function<char (std::byte,miscomplemented_encoding)> decode_e_type; // if named decode there is a char/string ambiguity some times.
-
-
-
 
 
 			/*!
@@ -359,10 +362,14 @@ typedef enum {
 
 			char decode_NUC_4BITS(std::byte b,miscomplemented_encoding mis_enc ={'S','W','-','N'});
 
-
-
-
-
 	};
+	template class seq<uint8_t>;
+	template class seq<uint16_t>;
+	template class seq<uint32_t>;
+	template class seq<uint64_t>;
 }
+
+
+
+
 #endif /* SEQ_HPP_ */

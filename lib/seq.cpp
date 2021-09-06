@@ -88,8 +88,9 @@ static std::map<encode_type,mol_type> encode_type2mol_type {
  };
 
 // CONSTRUCTORS
-
-seq::seq(){
+template<IsAnyOf T_uint>
+seq<T_uint>::seq(){
+	assert(typeid(T_uint)==typeid(uint8_t) || typeid(T_uint)==typeid(uint16_t) || typeid(T_uint)==typeid(uint32_t) || typeid(T_uint)==typeid(uint64_t));
 	SPDLOG_DEBUG("seq::seq");
 	this->e_type=enc_UNDEFINED;
 	this->m_type=mol_UNDEFINED;
@@ -102,7 +103,8 @@ seq::seq(){
 	this->data.reset(new std::byte[0]);
 	// note that decode is not defined
 };
-seq::seq(std::string & s,encode_type in_e_type,mol_type in_m_type){
+template<IsAnyOf T_uint>
+seq<T_uint>::seq(std::string & s,encode_type in_e_type,mol_type in_m_type){
 	SPDLOG_DEBUG("seq::seq with string");
 	this->e_type=in_e_type;
 	this->m_type=in_m_type;
@@ -111,22 +113,23 @@ seq::seq(std::string & s,encode_type in_e_type,mol_type in_m_type){
 };
 
 // GETTERS
-
-std::string seq::get_string(){
+template<IsAnyOf T_uint>
+std::string seq<T_uint>::get_string(){
 	SPDLOG_DEBUG("seq::get_string");
 	return(this->decode());
 };
 
 // MODIFIERS
-
-void seq::reverse(){
+template<IsAnyOf T_uint>
+void seq<T_uint>::reverse(){
 	SPDLOG_DEBUG("seq::reverse");
 	this->is_rev=!this->is_rev;
 };
-void seq::complement(){
+template<IsAnyOf T_uint>
+void seq<T_uint>::complement(){
 	SPDLOG_DEBUG("seq::complement");
 	if (this->m_type!= PROTEIN){
-		for (uint32_t i=0;i<this->n_bytes;i++){
+		for (T_uint i=0;i<this->n_bytes;i++){
 			this->data[i] = ~ this->data[i] ;
 		}
 	}else{
@@ -137,15 +140,16 @@ void seq::complement(){
 	SPDLOG_DEBUG("seq::complement this->is_comp is now " + this->is_comp) ;
 	if (this->e_type==NUC_4BITS) this->set_miscomplemented_encoding();
 };
-void seq::reverse_complement(){
+template<IsAnyOf T_uint>
+void seq<T_uint>::reverse_complement(){
 	SPDLOG_DEBUG("seq::reverse_complement");
 	this->reverse();
 	this->complement();
 };
 
 // OPERATORS
-
-void seq::operator = (std::string & s){
+template<IsAnyOf T_uint>
+void seq<T_uint>::operator = (std::string & s){
 	SPDLOG_DEBUG("seq::operator =");
 	this->e_type=enc_UNDEFINED;
 	this->m_type=mol_UNDEFINED;
@@ -154,10 +158,11 @@ void seq::operator = (std::string & s){
 };
 
 // INTERNAL FUNCTIONS
-
-void seq::set_encode_parameters(std::string& s){
+template<IsAnyOf T_uint>
+void seq<T_uint>::set_encode_parameters(std::string& s){
+	assert(typeid(T_uint)==typeid(uint8_t) || typeid(T_uint)==typeid(uint16_t) || typeid(T_uint)==typeid(uint32_t) || typeid(T_uint)==typeid(uint64_t));
 	SPDLOG_DEBUG("seq::set_encode_parameters");
-	uint32_t length=0 ;
+	T_uint length=0;
 	for (char const &c: s) {
 		switch(this->e_type){
 			case (enc_UNDEFINED):
@@ -221,27 +226,28 @@ void seq::set_encode_parameters(std::string& s){
 	case NUC_2BITS:
 		this->decode_e_type = [this](std::byte in_k,miscomplemented_encoding mis_enc){return this->decode_NUC_2BITS(in_k);};
 		this->right_append_bytecode_after_left_shift = [this](std::byte in_c, std::byte& in_b,uint8_t& in_k,encoding_astrideness in_astride){this->right_append_bytecode_after_left_shift_NUC_2BITS(in_c,in_b);};
-		this->get_byte = [this](uint32_t in_k){return this->get_byte_NUC_2BITS(in_k);};
+		this->get_byte = [this](T_uint in_k){return this->get_byte_NUC_2BITS(in_k);};
 		this->encode = [this](char in_k){return this->encode_NUC_2BITS(in_k);};
 	break;
 	case NUC_3BITS:
 		this->decode_e_type = [this](std::byte in_k,miscomplemented_encoding mis_enc){return this->decode_NUC_3BITS(in_k);};
 		this->right_append_bytecode_after_left_shift = [this](std::byte in_c, std::byte& in_b,uint8_t& in_k,encoding_astrideness in_astride){this->right_append_bytecode_after_left_shift_NUC_3BITS(in_c,in_b,in_k,in_astride);};
-		this->get_byte = [this](uint32_t in_k){return this->get_byte_NUC_3BITS(in_k);};
+		this->get_byte = [this](T_uint in_k){return this->get_byte_NUC_3BITS(in_k);};
 		this->encode = [this](char in_k){return this->encode_NUC_3BITS(in_k);};
 	break;
 	case NUC_4BITS:
 		this->decode_e_type = [this](std::byte in_k,miscomplemented_encoding mis_enc){return this->decode_NUC_4BITS(in_k,mis_enc);};
 		this->right_append_bytecode_after_left_shift = [this](std::byte in_c, std::byte& in_b,uint8_t& in_k,encoding_astrideness in_astride){this->right_append_bytecode_after_left_shift_NUC_4BITS(in_c,in_b);};
-		this->get_byte = [this](uint32_t in_k){return this->get_byte_NUC_4BITS(in_k);};
+		this->get_byte = [this](T_uint in_k){return this->get_byte_NUC_4BITS(in_k);};
 		this->encode = [this](char in_k){return this->encode_NUC_4BITS(in_k);};
 	break;
 	default: break;
 	};
 	this->set_miscomplemented_encoding();
-
 };
-void seq::set_miscomplemented_encoding(){
+
+template<IsAnyOf T_uint>
+void seq<T_uint>::set_miscomplemented_encoding(){
 	SPDLOG_DEBUG("seq::set_miscomplemented_encoding");
 	if (this->is_comp){
 		this->comp_dep_mis_enc.ini_n='-';
@@ -257,8 +263,8 @@ void seq::set_miscomplemented_encoding(){
 };
 
 // DATA POSITION ITERATION FUNCTIONS
-
-uint32_t seq::get_begin_data_pos(){
+template<IsAnyOf T_uint>
+T_uint seq<T_uint>::get_begin_data_pos(){
 	SPDLOG_DEBUG("seq::get_begin_data_pos");
 	if (this->is_rev){
 		return this->n_data-1;
@@ -266,7 +272,8 @@ uint32_t seq::get_begin_data_pos(){
 		return 0;
 	}
 };
-void seq::increment_begin_data_pos(uint32_t& i){
+template<IsAnyOf T_uint>
+void seq<T_uint>::increment_begin_data_pos(T_uint& i){
 	SPDLOG_DEBUG("seq::increment_begin_data_pos");
 	if (this->is_rev){
 		i--;
@@ -274,7 +281,8 @@ void seq::increment_begin_data_pos(uint32_t& i){
 		i++;
 	}
 };
-bool seq::is_data_pos_valid(uint32_t& i){
+template<IsAnyOf T_uint>
+bool seq<T_uint>::is_data_pos_valid(T_uint& i){
 	SPDLOG_DEBUG("seq::is_data_pos_valid");
 	if ( i<this->n_data ){ // equivalent also to a "human" i<0 since (0-1) will become the max value for an unsigned integer
 		return true;
@@ -284,8 +292,8 @@ bool seq::is_data_pos_valid(uint32_t& i){
 };
 
 // ENCODING FUNCTIONS
-
-std::byte seq::encode_NUC_2BITS(char& c){
+template<IsAnyOf T_uint>
+std::byte seq<T_uint>::encode_NUC_2BITS(char& c){
 	switch(toupper(c)){
 	case 'A': return b00; break;
 	case 'C': return b01; break;
@@ -294,7 +302,8 @@ std::byte seq::encode_NUC_2BITS(char& c){
 	default:std::string msg="Input char cannot be encoded as 2-bits DNA (ATCG only):";msg.push_back(c); throw std::invalid_argument(msg); break;
 	};
 };
-std::byte seq::encode_NUC_3BITS(char& c){
+template<IsAnyOf T_uint>
+std::byte seq<T_uint>::encode_NUC_3BITS(char& c){
 	switch(toupper(c)){
 	case 'A': return(b000); break;
 	case 'C': return(b001); break;
@@ -305,7 +314,8 @@ std::byte seq::encode_NUC_3BITS(char& c){
 	default:std::string msg="Input char cannot be encoded as 2-bits DNA (ATCG-N only):";msg.push_back(c); throw std::invalid_argument(msg); break;
 	};
 };
-std::byte seq::encode_NUC_4BITS(char& c){
+template<IsAnyOf T_uint>
+std::byte seq<T_uint>::encode_NUC_4BITS(char& c){
 	switch(toupper(c)){
 		case 'A': return b0000; break;
 		case 'C': return b0001; break;
@@ -326,13 +336,14 @@ std::byte seq::encode_NUC_4BITS(char& c){
 		default:std::string msg="Input char cannot be encoded as 2-bits DNA (IUPAC letter and '-' for gap only):";msg.push_back(c); throw std::invalid_argument(msg); break;
 		};
 };
-
-void seq::right_append_bytecode_after_left_shift_NUC_2BITS(std::byte c, std::byte& b){
+template<IsAnyOf T_uint>
+void seq<T_uint>::right_append_bytecode_after_left_shift_NUC_2BITS(std::byte c, std::byte& b){
 	SPDLOG_DEBUG("seq::encode_NUC_2BITS");
 	b = b << 2;
 	b |= c;
 }
-void seq::right_append_bytecode_after_left_shift_NUC_3BITS(std::byte c, std::byte & b,uint8_t & nbits_in_byte,encoding_astrideness astrideness){
+template<IsAnyOf T_uint>
+void seq<T_uint>::right_append_bytecode_after_left_shift_NUC_3BITS(std::byte c, std::byte & b,uint8_t & nbits_in_byte,encoding_astrideness astrideness){
 	SPDLOG_DEBUG("seq::encode_NUC_3BITS");
 	uint8_t nbits=3;
 	uint8_t shift=std::min(nbits_in_byte,nbits);
@@ -351,22 +362,24 @@ void seq::right_append_bytecode_after_left_shift_NUC_3BITS(std::byte c, std::byt
 	break;
 	};
 }
-void seq::right_append_bytecode_after_left_shift_NUC_4BITS(std::byte c, std::byte& b){
+template<IsAnyOf T_uint>
+void seq<T_uint>::right_append_bytecode_after_left_shift_NUC_4BITS(std::byte c, std::byte& b){
 	SPDLOG_DEBUG("seq::encode_NUC_4BITS");
 	b = b << 4;
 	b |= c;
 }
-void seq::encode_byte_array(std::string& s){
+template<IsAnyOf T_uint>
+void seq<T_uint>::encode_byte_array(std::string& s){
 	SPDLOG_DEBUG("seq::encode");
 	uint8_t nbits_in_bytes_after_first_bit;
 	switch(this->e_type){
 	case NUC_2BITS: case NUC_4BITS:
-		for (uint32_t i=0;i<this->n_data;i++){
+		for (T_uint i=0;i<this->n_data;i++){
 			this->right_append_bytecode_after_left_shift(encode(s[i]),this->data[(this->nbits * i) / CHAR_BIT],this->nbits,unique_byte);
 		};
 		break;
 	case NUC_3BITS: case PRO_5BITS:
-		for (uint32_t i=0;i<this->n_data;i++){
+		for (T_uint i=0;i<this->n_data;i++){
 			nbits_in_bytes_after_first_bit=CHAR_BIT - i*this->nbits % CHAR_BIT;
 
 			if (nbits_in_bytes_after_first_bit<this->nbits){
@@ -390,14 +403,15 @@ void seq::encode_byte_array(std::string& s){
 };
 
 // GET BYTES FUNCTIONS
-
-std::byte seq::get_byte_NUC_2BITS(uint32_t& i){
+template<IsAnyOf T_uint>
+std::byte seq<T_uint>::get_byte_NUC_2BITS(T_uint& i){
 	SPDLOG_DEBUG("seq::get_byte_NUC_2BITS");
 	char nshift=6 - 2 * (i%4);
 	std::byte byte= this->data[i/4] >> nshift;
 	return(byte & b00000011);
 };
-std::byte seq::get_byte_NUC_3BITS(uint32_t& i){
+template<IsAnyOf T_uint>
+std::byte seq<T_uint>::get_byte_NUC_3BITS(T_uint& i){
 	uint8_t nbits_in_bytes_after_first_bit=CHAR_BIT - (i)*this->nbits % CHAR_BIT; //
 	SPDLOG_TRACE("seq::decode_NUC_3BITS::nbits_in_bytes_after_first_bit={}",nbits_in_bytes_after_first_bit);
 	std::byte mask;
@@ -444,7 +458,8 @@ std::byte seq::get_byte_NUC_3BITS(uint32_t& i){
 	}
 	return(byte);
 };
-std::byte seq::get_byte_NUC_4BITS(uint32_t& i){
+template<IsAnyOf T_uint>
+std::byte seq<T_uint>::get_byte_NUC_4BITS(T_uint& i){
 	SPDLOG_DEBUG("seq::get_byte_NUC_4BITS");
 	uint8_t nshift=4 * (1 - i%2);
 	std::byte byte=this->data[i/2]>>nshift;
@@ -452,8 +467,8 @@ std::byte seq::get_byte_NUC_4BITS(uint32_t& i){
 };
 
 // DECODING FUNCTIONS
-
-char seq::decode_NUC_2BITS(std::byte b){
+template<IsAnyOf T_uint>
+char seq<T_uint>::decode_NUC_2BITS(std::byte b){
 	char r{'_'};
 	SPDLOG_DEBUG("seq::decode_NUC_2BITS");
 	switch(b){
@@ -465,7 +480,8 @@ char seq::decode_NUC_2BITS(std::byte b){
 	};
 	return(r);
 }
-char seq::decode_NUC_3BITS(std::byte b){
+template<IsAnyOf T_uint>
+char seq<T_uint>::decode_NUC_3BITS(std::byte b){
 	SPDLOG_DEBUG("seq::decode_NUC_3BITS");
 	char r {'_'};
 	switch(b){
@@ -479,7 +495,9 @@ char seq::decode_NUC_3BITS(std::byte b){
 	};
 	return(r);
 }
-char seq::decode_NUC_4BITS(std::byte b,miscomplemented_encoding mis_enc){
+
+template<IsAnyOf T_uint>
+char seq<T_uint>::decode_NUC_4BITS(std::byte b,miscomplemented_encoding mis_enc){
 	SPDLOG_DEBUG("seq::decode_NUC_4BITS");
 	char r{'_'};
 	switch(b){
@@ -503,11 +521,12 @@ char seq::decode_NUC_4BITS(std::byte b,miscomplemented_encoding mis_enc){
 	};
 	return(r);
 }
-std::string seq::decode(){
+template<IsAnyOf T_uint>
+std::string seq<T_uint>::decode(){
 	SPDLOG_DEBUG("seq::decode");
 	std::string r = "";
 	SPDLOG_TRACE("seq::decode::start iteration");
-	for(uint32_t i=this->get_begin_data_pos(); this->is_data_pos_valid(i) ; this->increment_begin_data_pos(i) ){
+	for(T_uint i=this->get_begin_data_pos(); this->is_data_pos_valid(i) ; this->increment_begin_data_pos(i) ){
 		SPDLOG_TRACE("seq::decode::i={}",i);
 		SPDLOG_TRACE("seq::decode:: before push_back r= "+r);
 		r.push_back(this->decode_e_type(this->get_byte(i),this->comp_dep_mis_enc));
