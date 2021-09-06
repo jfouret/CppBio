@@ -219,22 +219,22 @@ void seq::set_encode_parameters(std::string& s){
 	this->is_comp=false;
 	switch(this->e_type){
 	case NUC_2BITS:
-		this->decode_e_type = [=](std::byte in_k,miscomplemented_encoding mis_enc){return this->decode_NUC_2BITS(in_k);};
-		this->right_append_bytecode_after_left_shift = [=](std::byte in_c, std::byte& in_b,uint8_t& in_k,encoding_astrideness in_astride){this->right_append_bytecode_after_left_shift_NUC_2BITS(in_c,in_b);};
-		this->get_byte = [=](uint32_t in_k){return this->get_byte_NUC_2BITS(in_k);};
-		this->encode = [=](char in_k){return this->encode_NUC_2BITS(in_k);};
+		this->decode_e_type = [this](std::byte in_k,miscomplemented_encoding mis_enc){return this->decode_NUC_2BITS(in_k);};
+		this->right_append_bytecode_after_left_shift = [this](std::byte in_c, std::byte& in_b,uint8_t& in_k,encoding_astrideness in_astride){this->right_append_bytecode_after_left_shift_NUC_2BITS(in_c,in_b);};
+		this->get_byte = [this](uint32_t in_k){return this->get_byte_NUC_2BITS(in_k);};
+		this->encode = [this](char in_k){return this->encode_NUC_2BITS(in_k);};
 	break;
 	case NUC_3BITS:
-		this->decode_e_type = [=](std::byte in_k,miscomplemented_encoding mis_enc){return this->decode_NUC_3BITS(in_k);};
-		this->right_append_bytecode_after_left_shift = [=](std::byte in_c, std::byte& in_b,uint8_t& in_k,encoding_astrideness in_astride){this->right_append_bytecode_after_left_shift_NUC_3BITS(in_c,in_b,in_k,in_astride);};
-		this->get_byte = [=](uint32_t in_k){return this->get_byte_NUC_3BITS(in_k);};
-		this->encode = [=](char in_k){return this->encode_NUC_3BITS(in_k);};
+		this->decode_e_type = [this](std::byte in_k,miscomplemented_encoding mis_enc){return this->decode_NUC_3BITS(in_k);};
+		this->right_append_bytecode_after_left_shift = [this](std::byte in_c, std::byte& in_b,uint8_t& in_k,encoding_astrideness in_astride){this->right_append_bytecode_after_left_shift_NUC_3BITS(in_c,in_b,in_k,in_astride);};
+		this->get_byte = [this](uint32_t in_k){return this->get_byte_NUC_3BITS(in_k);};
+		this->encode = [this](char in_k){return this->encode_NUC_3BITS(in_k);};
 	break;
 	case NUC_4BITS:
-		this->decode_e_type = [=](std::byte in_k,miscomplemented_encoding mis_enc){return this->decode_NUC_4BITS(in_k,mis_enc);};
-		this->right_append_bytecode_after_left_shift = [=](std::byte in_c, std::byte& in_b,uint8_t& in_k,encoding_astrideness in_astride){this->right_append_bytecode_after_left_shift_NUC_4BITS(in_c,in_b);};
-		this->get_byte = [=](uint32_t in_k){return this->get_byte_NUC_4BITS(in_k);};
-		this->encode = [=](char in_k){return this->encode_NUC_4BITS(in_k);};
+		this->decode_e_type = [this](std::byte in_k,miscomplemented_encoding mis_enc){return this->decode_NUC_4BITS(in_k,mis_enc);};
+		this->right_append_bytecode_after_left_shift = [this](std::byte in_c, std::byte& in_b,uint8_t& in_k,encoding_astrideness in_astride){this->right_append_bytecode_after_left_shift_NUC_4BITS(in_c,in_b);};
+		this->get_byte = [this](uint32_t in_k){return this->get_byte_NUC_4BITS(in_k);};
+		this->encode = [this](char in_k){return this->encode_NUC_4BITS(in_k);};
 	break;
 	default: break;
 	};
