@@ -129,7 +129,6 @@ typedef enum {
 	 *
 	 */
 
-
 	template<typename T_uint>
 	concept IsAnyOf = (std::same_as<T_uint, uint8_t> || std::same_as<T_uint, uint16_t> || std::same_as<T_uint, uint32_t> || std::same_as<T_uint, uint64_t>);
 
@@ -143,6 +142,13 @@ typedef enum {
 			 *
 			 */
 			seq();
+						/*!
+			 *  @brief Default constructor
+			 *
+			 *  Default destructor without args.
+			 *
+			 */
+			~seq();
 			/*!
 			 *  @brief String constructor
 			 *
@@ -192,6 +198,7 @@ typedef enum {
 			 *
 			 */
 			std::string get_string();
+
 		private:
 
 			// ATTRIBUTES

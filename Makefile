@@ -5,7 +5,9 @@ SRC_TEST=test
 BUILD_DIR=build
 
 # Prject specific variable
+ifndef SPDLOG_ACTIVE_LEVEL
 SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_ERROR
+endif
 
 # Define default make variables
 CXX=g++
@@ -17,7 +19,7 @@ LDFLAGS=-DSPDLOG_ACTIVE_LEVEL=$(SPDLOG_ACTIVE_LEVEL) -DSPDLOG_COMPILED_LIB
 # Define the name of the libraries to be built
 LIBS_NAME=seq
 
-# Get the path 
+# Get the path
 LIBS_STATIC_PATH=$(addprefix ${BUILD_DIR}/lib/,$(addsuffix .a,$(LIBS_NAME)))
 LIBS_TEST_PATH=$(addprefix ${BUILD_DIR}/test/,$(LIBS_NAME))
 LIBS_GCOV_PATH=$(addprefix ${BUILD_DIR}/coverage/,$(addsuffix .gcov,$(LIBS_NAME)))
@@ -41,7 +43,7 @@ clean:
 	${RM} -r ${BUILD_DIR} *.gcda *.gcno *.gcov
 
 .PHONY: doc
-doc: 
+doc:
 	doxygen doxyfile
 
 .PHONY: coverage
@@ -60,25 +62,25 @@ ${BUILD_DIR}/src ${BUILD_DIR}/lib ${BUILD_DIR}/bin ${BUILD_DIR}/test ${BUILD_DIR
 # Build libraries
 
 ${LIBS_STATIC_PATH} : BASE=$(subst ${BUILD_DIR}/lib/,,$(subst .a,,$@))
-${LIBS_STATIC_PATH} : ${BUILD_DIR}/lib 
+${LIBS_STATIC_PATH} : ${BUILD_DIR}/lib
 	echo " base is '${BASE}'"
 	${CXX} -I"./${SRC_LIB}" ${CXXFLAGS} -c ${LDFLAGS} ${LDLIBS} -o ${BUILD_DIR}/lib/${BASE}.o  ${SRC_LIB}/${BASE}.cpp
-	ar -q $@ build/lib/${BASE}.o 
+	ar -q $@ build/lib/${BASE}.o
 
 # Build and run tests
 
 ${LIBS_TEST_PATH} : BASE=$(subst ${BUILD_DIR}/test/,,$@)
-${LIBS_TEST_PATH} : ${LIBS_STATIC_PATH} ${BUILD_DIR}/test
+${LIBS_TEST_PATH} : ${BUILD_DIR}/test
 	${CXX} ${CXXFLAGS} -I"./${SRC_LIB}" -I"./${SRC_TEST}" ${LDFLAGS} ${LDLIBS} -o $@ ${SRC_TEST}/test_${BASE}.cpp ${SRC_LIB}/${BASE}.cpp
 	chmod u+x $@
 	export export BOOST_TEST_LOG_LEVEL=all ; valgrind --tool=memcheck --leak-check=full --leak-resolution=high --show-reachable=yes $@
 	gcov -s $PWD -r ${BASE}.gcda
-	
+
 ${BUILD_DIR}/coverage/index.html: ${LIBS_TEST_PATH}
 	lcov --capture --directory ./ --output-file ${BUILD_DIR}/coverage.info --no-external
 	genhtml ${BUILD_DIR}/coverage.info --output-directory out$(subst /index.html,,$@)
-	
-# Build test and 
+
+# Build test and
 
 ${LIBS_GCOV_PATH}: BASE=$(subst ${BUILD_DIR}/coverage/,,$(subst .gcov,,$@))
 ${LIBS_GCOV_PATH}: ${BUILD_DIR}/coverage
@@ -95,4 +97,3 @@ ${LIBS_GCOV_PATH}: ${BUILD_DIR}/coverage
 
 
 
-	

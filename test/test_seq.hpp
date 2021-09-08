@@ -11,15 +11,18 @@
 #define BOOST_TEST_MODULE "C++ Unit Tests for cppbio::seq"
 #include <boost/test/unit_test.hpp>
 
+#define N_INPUTS 3
+
 using namespace cppbio;
 
 struct TestFixture1
 {
 	TestFixture1();
 	// ~TestFixture1(); not needed
-	seq<uint8_t> s1;
-	std::shared_ptr<seq<uint16_t>> s2;
-	seq<uint32_t> s3;
+
+	std::tuple<seq<uint8_t>,seq<uint16_t>,seq<uint32_t>,seq<uint64_t>> seqs[N_INPUTS];
+
+	std::tuple<std::shared_ptr<seq<uint8_t>>,std::shared_ptr<seq<uint16_t>>,std::shared_ptr<seq<uint32_t>>,std::shared_ptr<seq<uint64_t>>> ptr_seqs[N_INPUTS];
 };
 
 #endif /* TEST_SEQ_HPP_ */

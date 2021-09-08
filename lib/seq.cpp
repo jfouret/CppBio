@@ -8,7 +8,6 @@
 #include <seq.hpp>
 
 // constant of byte-typed binary code often used
-
 const std::byte b00 {0b00};
 const std::byte b01 {0b01};
 const std::byte b10 {0b10};
@@ -111,6 +110,12 @@ seq<T_uint>::seq(std::string & s,encode_type in_e_type,mol_type in_m_type){
 	this->set_encode_parameters(s);
 	this->encode_byte_array(s);
 };
+
+
+template<IsAnyOf T_uint>
+seq<T_uint>::~seq(){
+    SPDLOG_DEBUG("seq::~seq DESTRUCTOR CALLED");
+}
 
 // GETTERS
 template<IsAnyOf T_uint>
